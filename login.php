@@ -1,6 +1,7 @@
 <?php
 session_start();
-require_once 'conexion.php';
+// Updated to match your new database connection file
+require_once 'conexion.php'; 
 
 $errors = ""; 
 
@@ -9,29 +10,35 @@ try {
         $user = mb_strtoupper(trim($_POST['usuario'] ?? ''));
         $password = trim($_POST['password'] ?? '');
         
-        if(mb_strlen($user) !== 9){
-            $errors = "El usuario debe ser de 9 caracteres.";
+        if(empty($user) || empty($password)){
+            $errors = "Por favor, rellene todos los campos.";
         } else {
-            $stmt = $pdo->prepare("SELECT usuario, password, rol, estado FROM usuarios WHERE BINARY usuario = ?");
+            // Join with 'roles' table to get the role name directly for the session
+            $sql = "SELECT u.username, u.password_hash, r.name as role_name 
+                    FROM users u 
+                    JOIN roles r ON u.role_id = r.id 
+                    WHERE u.username = ?";
+            
+            $stmt = $pdo->prepare($sql);
             $stmt->execute([$user]);
             $fila = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            if ($fila && password_verify($password, $fila['password'])) {
-                if ($fila['estado'] === "Activo") {
-                    $_SESSION['usuario'] = $user;
-                    $_SESSION['rol'] = $fila['rol'];
-                    header("Location: gestion.php");
-                    exit; 
-                } else {
-                    $errors = "Cuenta inactiva. Contacta con el administrador."; 
-                }
+            // Verify password using the hash stored in 'password_hash'
+            if ($fila && password_verify($password, $fila['password_hash'])) {
+                // Login success
+                $_SESSION['usuario'] = $fila['username'];
+                $_SESSION['rol'] = $fila['role_name'];
+                
+                // Redirect to the dashboard/management page defined in your plan 
+                header("Location: dashboard.php");
+                exit; 
             } else {
-                $errors = "Error en usuario o contraseña."; 
+                $errors = "Usuario o contraseña incorrectos."; 
             }
         }
     }
 } catch (PDOException $ex) {
-    $errors = "Error con la base de datos."; 
+    $errors = "Error de conexión con el sistema."; 
 }
 ?>
 <!DOCTYPE html>
@@ -39,21 +46,24 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Panadería</title>
-    <!-- Bootstrap -->
+    <title>Login - ERP Gestión Comercial</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body { background-color: #f8f9fa; }
+        .card-login { border: none; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .btn-erp { background-color: #0d6efd; color: white; transition: 0.3s; }
+        .btn-erp:hover { background-color: #0b5ed7; }
+    </style>
 </head>
 <body>
 
-<div class="container">
+<div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-5 col-lg-4">
             
             <div class="text-center mb-4">
-                <h2 class="fw-bold" style="color: #a35d45;">PANADERÍA</h2>
-                <p class="text-muted">Gestión de Inventario y Ventas</p>
+                <h2 class="fw-bold text-primary">SISTEMA ERP</h2>
+                <p class="text-muted">Gestión Comercial y Producción</p>
             </div>
 
             <div class="card card-login p-4">
@@ -67,24 +77,24 @@ try {
 
                     <form method="POST">
                         <div class="mb-3">
-                            <label for="usuario" class="form-label fw-bold">NIF/NIE (Usuario):</label>
-                            <input type="text" class="form-control shadow-sm" id="usuario" name="usuario" placeholder="Ej: 12345678A" required>
+                            <label for="usuario" class="form-label fw-bold">Usuario:</label>
+                            <input type="text" class="form-control" id="usuario" name="usuario" placeholder="Ingrese su usuario" required>
                         </div>
                         
                         <div class="mb-4">
                             <label for="password" class="form-label fw-bold">Contraseña:</label>
-                            <input type="password" class="form-control shadow-sm" id="password" name="password" placeholder="Contraseña" required>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required>
                         </div>
                         
-                        <button type="submit" class="btn btn-bakery w-100 py-2 fw-bold shadow-sm">
-                            Iniciar Sesión
+                        <button type="submit" class="btn btn-erp w-100 py-2 fw-bold">
+                            Entrar al Sistema
                         </button>
                     </form>
 
                 </div>
             </div>
 
-            <p class="text-center mt-4 text-muted small">&copy; 2026 Sistema de Gestión Artesanal</p>
+            <p class="text-center mt-4 text-muted small">&copy; [cite_start]2026 ERP Comercial - Puesta en Marcha [cite: 13]</p>
             
         </div>
     </div>

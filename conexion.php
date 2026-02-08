@@ -1,24 +1,22 @@
-<!DOCTYPE html>
-<!--
-Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to edit this template
--->
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title></title>
-    </head>
-    <body>
-        
-        <?php
-        //Conexión a la BBBDD
-            try{
-                $pdo= new PDO ("mysql:host=localhost;dbname=panaderia;charset=utf8",
-                        "root","");
-                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            } catch (PDOException $ex) {
-                die("Error en la conexión: ". $ex->getMessage());
-            }
-        ?>
-    </body>
-</html>
+<?php
+// includes/db.php
+
+$host = 'localhost';
+$db   = 'erp_commercial';
+$user = 'root';      // Default Laragon user
+$pass = '';          // Default Laragon password is empty
+$charset = 'utf8mb4';
+
+$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+$options = [
+    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    PDO::ATTR_EMULATE_PREPARES   => false,
+];
+
+try {
+    $pdo = new PDO($dsn, $user, $pass, $options);
+} catch (\PDOException $e) {
+    die("Database Connection Failed: " . $e->getMessage());
+}
+?>
