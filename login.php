@@ -1,19 +1,26 @@
 <?php
+// Inicia la sesión para poder guardar los datos del usuario.
+// Start the session to be able to store user data.
 session_start();
-// Updated to match your new database connection file
+// Importar la conexión a la base de datos.
+// Import the database connection.
 require_once 'conexion.php'; 
 
 $errors = ""; 
 
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Recoger y limpiar los datos del formulario.
+        // Collect and clean form data.
         $user = mb_strtoupper(trim($_POST['usuario'] ?? ''));
         $password = trim($_POST['password'] ?? '');
-        
+        // Comprobar si los campos están vacíos.
+        // Check if the fields are empty.
         if(empty($user) || empty($password)){
             $errors = "Por favor, rellene todos los campos.";
         } else {
-            // Join with 'roles' table to get the role name directly for the session
+            //Consulta SQL para obtener el usuario y su rol mediante un JOIN.
+            //SQL query to get the user and their role using a JOIN.
             $sql = "SELECT u.username, u.password_hash, r.name as role_name 
                     FROM users u 
                     JOIN roles r ON u.role_id = r.id 
@@ -23,21 +30,33 @@ try {
             $stmt->execute([$user]);
             $fila = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            // Verify password using the hash stored in 'password_hash'
+            //Verificar la contraseña usando el hash almacenado.
+            //Verify the password using the stored hash.
             if ($fila && password_verify($password, $fila['password_hash'])) {
-                // Login success
+                // Guardar datos en la sesión si el login es correcto.
+                // Store data in the session if login is correct.
                 $_SESSION['usuario'] = $fila['username'];
                 $_SESSION['rol'] = $fila['role_name'];
                 
-                // Redirect to the dashboard/management page defined in your plan 
+                //Activa el interruptor de seguridad
+                // Esto lee la función is_logged_in()
+                //Activate the safety switch
+                //This reads the is_logged_in() function
+                $_SESSION['autorizado']=true;
+                // Redirigir al panel de gestión principal.
+                // Redirect to the main management dashboard.
                 header("Location: dashboard.php");
                 exit; 
             } else {
+                // Mensaje si las credenciales no coinciden.
+                // Message if credentials do not match.
                 $errors = "Usuario o contraseña incorrectos."; 
             }
         }
     }
 } catch (PDOException $ex) {
+    // Capturar errores de la base de datos.
+    // Catch database errors.
     $errors = "Error de conexión con el sistema."; 
 }
 ?>
