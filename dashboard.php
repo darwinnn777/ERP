@@ -10,7 +10,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
     </head>
     <body>
         <?php
-            echo "BIENVENIDO";
+            echo "BIENVENIDO ikran dashboard";
         ?>
     </body>
 </html>
