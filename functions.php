@@ -103,4 +103,4 @@ function sanitize_input($input) {
     return htmlspecialchars($input, ENT_QUOTES, 'UTF-8');
 }
 ?>
-//Esto es un comentario para ver si me funciona;
+// Codigo Isaac
