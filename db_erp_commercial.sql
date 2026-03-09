@@ -6,7 +6,11 @@
 -- Tiempo de generación: 06-03-2026 a las 14:16:05
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
+CREATE DATABASE IF NOT EXISTS `erp_commercial`
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_general_ci;
 
+USE `erp_commercial`;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";

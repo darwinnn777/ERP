@@ -1,5 +1,5 @@
 <?php
-require_once 'conexion.php'; 
+require_once 'db_erp.php'; 
 
 try {
     // 1. Define the users you want to create
