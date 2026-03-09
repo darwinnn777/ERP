@@ -2,7 +2,6 @@
 // Siempre iniciamos sesion por si acaso no esta iniciada
 session_start();
 
-// Traemos la conexion y las funciones que hizo el grupo
 require_once 'db_erp.php';
 require_once 'functions.php';
 
@@ -12,7 +11,6 @@ if (!is_logged_in()) {
     exit;
 }
 
-// Variables en español para que nos entendamos
 $rol_actual = get_user_role();
 $nombre_usu = $_SESSION['usuario'] ?? 'Compañero'; 
 
