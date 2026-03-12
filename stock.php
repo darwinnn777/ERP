@@ -8,6 +8,7 @@ require_role(['admin', 'obrador', 'dependiente']);
 
 try {
     // 3. Consulta SQL adaptada a PostgreSQL (Supabase)
+    // AÑADIDO: p.price_sell para traer el precio de venta actual
     $sql = "SELECT 
                 sl.id, 
                 sl.lot_number, 
@@ -15,6 +16,7 @@ try {
                 sl.expiration_date,
                 p.id AS id_producto,
                 p.name AS nombre_producto,
+                p.price_sell,
                 w.name AS nombre_almacen,
                 (sl.expiration_date - CURRENT_DATE) AS dias_restantes
             FROM stock_lots sl
@@ -85,7 +87,7 @@ try {
                     <thead class="thead-bakery">
                         <tr>
                             <th class="py-3">Producto</th>
-                            <th class="py-3">Nº Lote</th>
+                            <th class="py-3">Precio Venta</th> <th class="py-3">Nº Lote</th>
                             <th class="py-3">Almacén</th>
                             <th class="py-3">Cantidad</th>
                             <th class="py-3">Fecha Caducidad</th>
@@ -119,6 +121,11 @@ try {
 
                                 <tr class="<?= $clase_color ?>">
                                     <td class="fw-bold py-3"><?= htmlspecialchars($lote['nombre_producto']) ?></td>
+                                    
+                                    <td class="py-3 fw-bold text-success">
+                                        <?= number_format($lote['price_sell'], 2, ',', '.') ?> €
+                                    </td>
+                                    
                                     <td class="py-3"><?= htmlspecialchars($lote['lot_number']) ?></td>
                                     <td class="py-3"><?= htmlspecialchars($lote['nombre_almacen']) ?></td>
                                     <td class="py-3"><?= htmlspecialchars($lote['quantity']) ?> und/kg</td>
@@ -141,7 +148,7 @@ try {
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="6" class="py-4 text-muted">No hay lotes registrados en el stock.</td>
+                                <td colspan="7" class="py-4 text-muted">No hay lotes registrados en el stock.</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
