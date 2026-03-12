@@ -24,9 +24,10 @@ try {
         if(empty($user) || empty($password)){
             $errors = "Por favor, rellene todos los campos.";
         } else {
-            // Obtener el usuario y su rol mediante un JOIN
-            // Get the user and their role using a JOIN
-            $sql = "SELECT u.username, u.password_hash, r.name as role_name 
+            // Obtener el usuario, su ID y su rol mediante un JOIN
+            // Get the user, their ID and their role using a JOIN
+            // PostgreSQL: quitamos backticks y añadimos u.id para las funciones de sesión
+            $sql = "SELECT u.id, u.username, u.password_hash, r.name as role_name 
                     FROM users u 
                     JOIN roles r ON u.role_id = r.id 
                     WHERE u.username = ?";
@@ -41,8 +42,9 @@ try {
                 
                 // Guardar datos en la sesión
                 // Store data in the session
+                $_SESSION['user_id'] = $fila['id']; // CRITICO: Necesario para get_user_role()
                 $_SESSION['usuario'] = $fila['username'];
-                $_SESSION['rol'] = $fila['role_name'];
+                $_SESSION['rol'] = strtolower($fila['role_name']); // Normalizamos a minúsculas
                 $_SESSION['autorizado'] = true;
                 
                 // Redirigir al panel principal
@@ -59,6 +61,7 @@ try {
 } catch (PDOException $ex) {
     // Capturar errores del sistema
     // Catch system errors
+    // error_log($ex->getMessage()); // Opcional: para depurar
     $errors = "Error de conexión con el sistema."; 
 }
 ?>
@@ -70,12 +73,11 @@ try {
     <title>Login - ERP Bakery</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="container">
+<div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-5 col-lg-4">
             
@@ -84,7 +86,7 @@ try {
                 <p class="text-muted">Gestión Comercial y Producción</p>
             </div>
 
-            <div class="card card-login p-4">
+            <div class="card card-login p-4 shadow-sm">
                 <div class="card-body">
                     
                     <?php if (!empty($errors)): ?>
