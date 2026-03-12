@@ -1,16 +1,14 @@
 <?php
-// 1. Incluimos las funciones de seguridad y la conexión
-// Include security functions and connection
+// Incluir funciones de seguridad y conexión a la base de datos
 require_once 'functions.php'; 
 require_once 'db_erp.php';
 
-// 2. Protegemos la página: Solo pueden entrar Admin, Obrador o Dependiente
-// Protect the page: Only Admin, Baker or Shop Assistant can enter
+// Proteger la página permitiendo acceso solo a Admin, Obrador o Dependiente
 require_role(['admin', 'obrador', 'dependiente']);
 
 try {
-    // 3. Consulta SQL adaptada a PostgreSQL
-    // PostgreSQL no usa DATEDIFF(a, b). Se restan las fechas directamente: (a - CURRENT_DATE)
+    // Realizar consulta SQL adaptada a PostgreSQL
+    // Restar fechas directamente en PostgreSQL para calcular días restantes
     $sql = "SELECT 
                 sl.id, 
                 sl.lot_number, 
@@ -71,7 +69,7 @@ try {
                         <?php foreach ($lotes as $lote): ?>
                             
                             <?php 
-                            // LOGICA DE COLORES
+                            // Aplicar lógica de colores según días restantes
                             $dias = $lote['dias_restantes'];
                             $clase_color = "";
                             $mensaje_estado = "";
@@ -80,15 +78,15 @@ try {
                                 $clase_color = "";
                                 $mensaje_estado = "Sin caducidad";
                             } elseif ($dias <= 3) {
-                                // ROJO: Faltan 3 días o menos
+                                // Marcar en rojo cuando faltan tres días o menos
                                 $clase_color = "table-danger"; 
                                 $mensaje_estado = ($dias < 0) ? "CADUCADO" : "Critico ($dias dias)";
                             } elseif ($dias <= 6) {
-                                // AMARILLO: Faltan entre 4 y 6 días
+                                // Marcar en amarillo cuando faltan entre cuatro y seis días
                                 $clase_color = "table-warning";
                                 $mensaje_estado = "Atencion ($dias dias)";
                             } else {
-                                // VERDE: Correcto
+                                // Marcar en verde cuando el estado es correcto
                                 $clase_color = "table-success";
                                 $mensaje_estado = "Correcto ($dias dias)";
                             }
