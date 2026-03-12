@@ -1,75 +1,65 @@
 <?php
-//Funciones de Control de Acceso basado en Roles.
-//Role-based Access Control Functions.
+// Funciones de Control de Acceso basado en Roles.
+// Role-based Access Control Functions.
 
-//1-Comprueba si la sesión está iniciada
-//1-Check if the session is started.
+// 1. Comprueba si el usuario tiene el rol necesario.
+// 1. Check if the user has the required role.
 function has_role($required_role): bool {
     if (!is_logged_in()) {
         return false;
     }
     
-    //Limpiar el rol actual del usuario (Usa ?? para evitar errores si no existe la clave)
-    //Clear the user's current role (Use ?? to avoid errors if the key does not exist)
+    // Obtenemos el rol de la sesion (ya normalizado en login.php)
+    // Get the role from the session (already normalized in login.php)
     $rol_sesion = $_SESSION['rol'] ?? '';
-    $current_role = strtolower(filter_var($rol_sesion, FILTER_SANITIZE_SPECIAL_CHARS));
+    $current_role = strtolower(trim($rol_sesion));
     
-    //Si el rol es admin devuelve verdadero y tiene permiso para todo.
-    //If the role is admin, it returns true and has permission for everything.
+    // Si el rol es admin devuelve verdadero (permiso total).
+    // If the role is admin, it returns true (full permission).
     if ($current_role === 'admin') {
         return true;
     }
     
-    //Si pasa una lista de roles permitidos (Array).
-    //If a list of allowed roles (Array) is passed.
+    // Si se pasa una lista de roles (Array).
+    // If a list of roles (Array) is passed.
     if (is_array($required_role)) {
         $required_role = array_map('strtolower', $required_role);
         return in_array($current_role, $required_role);
     }
     
-    //Si es un solo rol.
-    //If it is a single role.
+    // Si es un solo rol.
+    // If it is a single role.
     return $current_role === strtolower($required_role);
 }
 
-//2-Función para verificar y sanear si el usuario está logueado.
-//2-Function to verify and clean up if the user is logged in.
+// 2. Verifica si el usuario esta logueado.
+// 2. Verify if the user is logged in.
 function is_logged_in(): bool {
-    //Asegura que session_start se ha llamado
-    //Ensure that session_start has been called
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
-    return isset($_SESSION['autorizado']) && $_SESSION['autorizado'] === true;
+    // Verificamos tanto el flag de autorizado como que el ID de usuario exista
+    return isset($_SESSION['autorizado']) && $_SESSION['autorizado'] === true && isset($_SESSION['user_id']);
 }
 
-//3-Función para que un rol específico pueda acceder a la página funciona 
-//porque has_role() incluye el bypass de admin.
-//3-Function so that a specific role can access the page works 
-//because has_role() includes the admin bypass.
+// 3. Restringe el acceso a una pagina segun el rol.
+// 3. Restrict access to a page according to the role.
 function require_role($required_role, string $redirect_page = 'dashboard.php') {
     if (!is_logged_in()) {
-        //Si no está logueado, lo enviamos al login
-        //If you are not logged in, we will send you to the login page.
         header('Location: login.php');
         exit;
     }
     
-    //Si está logueado pero no tiene el rol requerido 
-    //(has_role ahora chequea admin).
-    //If you are logged in but do not have the required role 
-    //(has_role now checks admin).
     if (!has_role($required_role)) {
-        //Redirige con un mensaje de "acceso denegado".
-        //Redirect with an “access denied” message.
-        $_SESSION['error_permiso'] = "Tu rol no tiene acceso a esta sección.";
+        // Guardamos error en sesion para mostrarlo en el dashboard si quieres
+        $_SESSION['error_permiso'] = "No tienes permiso para acceder a esta seccion.";
         header("Location: $redirect_page");
         exit;
     }
 }
 
-//4-Función que devuelve el rol del usuario actual para interfaz.
-//4-Function that returns the role of the current user for the interface.
+// 4. Devuelve el rol actual.
+// 4. Returns current role.
 function get_user_role(): string {
     if (is_logged_in() && isset($_SESSION['rol'])) {
         return strtolower($_SESSION['rol']);
@@ -77,29 +67,54 @@ function get_user_role(): string {
     return 'invitado';
 }
 
-//5-Función para cerrar sesión.
-//5-Function to log out.
+// 5. Cierra la sesion de forma segura.
+// 5. Log out securely.
 function log_out() {
-    //Si la sesión no estaba abierta, la abrimos 
-    //para poder cerrar bien.
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-    
-    //Vacia el array de sesión y destruye en el servidor.
-    //Empty the session array and destroy it on the server.
-    $_SESSION = []; 
-    session_destroy();
-    
-    //Redirigir al login
-    //Redirect to login
-    header('Location: login.php');
-    exit;
+            // Si la sesión no se ha iniciado todavía, la abrimos para poder manipularla y cerrarla.
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Limpiamos todas las variables de sesión (usuario, rol, id, etc.) poniéndolas en un array vacío.
+        // Es como vaciar las maletas antes de irte del hotel.
+        $_SESSION = []; 
+
+        //  Este bloque borra la "cookie" de sesión que se guarda en el navegador del usuario.
+        // Si no borras la cookie, el navegador podría intentar reconectarse automáticamente.
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+
+            // Seteamos una cookie con el mismo nombre pero que caducó hace 42,000 segundos (en el pasado).
+            // Esto obliga al navegador a borrarla inmediatamente.
+            //Objetivo:
+            //Borrar la cookie por seguridad, para asegurar que el cliente no
+            // mantenga identificadores de sesión obsoletos
+            setcookie(
+                session_name(), 
+                '', 
+                time() - 42000,
+                $params["path"], 
+                $params["domain"],
+                $params["secure"], 
+                $params["httponly"]
+            );
+        }
+
+        // Finalmente, destruimos la sesión en el servidor. 
+        // El servidor olvida que ese usuario estuvo conectado.
+        session_destroy();
+
+        // 5. Redirigimos al usuario a la página de login.
+        header('Location: login.php');
+        exit;
 }
 
-//6-Función para limpiar entrada.
-//6-Function to clear input.
+// 6. Limpia entradas de texto.
+// 6. Sanitize text inputs.
 function sanitize_input($input) {
-    return htmlspecialchars($input, ENT_QUOTES, 'UTF-8');
+    if ($input === null){
+        return '';
+    }
+    return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
 }
 ?>
