@@ -1,14 +1,14 @@
 <?php
-// 1. Incluimos las funciones de seguridad y la conexión a Supabase
+// Incluir funciones de seguridad y conexión a la base de datos
 require_once 'functions.php'; 
 require_once 'db_erp.php';
 
-// 2. Protegemos la página: Solo pueden entrar Admin, Obrador o Dependiente
+// Proteger la página permitiendo acceso solo a Admin, Obrador o Dependiente
 require_role(['admin', 'obrador', 'dependiente']);
 
 try {
-    // 3. Consulta SQL adaptada a PostgreSQL (Supabase)
-    // AÑADIDO: p.price_sell para traer el precio de venta actual
+    // Realizar consulta SQL adaptada a PostgreSQL
+    // Restar fechas directamente en PostgreSQL para calcular días restantes
     $sql = "SELECT 
                 sl.id, 
                 sl.lot_number, 
