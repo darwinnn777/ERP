@@ -41,8 +41,11 @@ try {
   <div class="container">
     <a class="navbar-brand fw-bold" href="#">🍞 ERP Bakery TFG</a>
     <div class="d-flex align-items-center text-white">
-        <span class="me-3">Hola, <b><?= htmlspecialchars($nombre_usu) ?></b> (Rol: <?= strtoupper($rol_actual) ?>)</span>
-        <a href="logout.php" class="btn btn-sm btn-outline-light">Cerrar Sesión</a>
+        <span class="me-3">Hola, <b><?= sanitize_input($nombre_usu) ?></b> (Rol: <?= strtoupper($rol_actual) ?>)</span>
+        <a href="logout.php" class="btn btn-sm btn-outline-light" 
+            onclick="return confirm('¿Estás seguro de que quieres cerrar sesión?');">
+            Cerrar Sesión
+        </a>
     </div>
   </div>
 </nav>
