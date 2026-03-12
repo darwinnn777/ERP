@@ -47,14 +47,14 @@ try {
         <h2>Control de Stock y Caducidades</h2>
         
         <?php if (has_role('admin')): ?>
-            <a href="nuevo_lote.php" class="btn btn-primary">Añadir Nuevo Lote</a>
+            <a href="nuevo_lote.php" class="btn btn-bakery">Añadir Nuevo Lote</a>
         <?php endif; ?>
     </div>
 
-    <div class="card shadow-sm">
+    <div class="card shadow-sm card-login">
         <div class="card-body">
             <table class="table table-hover table-bordered text-center align-middle">
-                <thead class="table-dark">
+                <thead class="thead-bakery">
                     <tr>
                         <th>Producto</th>
                         <th>Nº Lote</th>
