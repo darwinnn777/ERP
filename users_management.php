@@ -30,7 +30,9 @@ $alert_message='';
              $delete_query="DELETE FROM users WHERE id = :id AND role_id != 1 ";
              $stmt_delete=$pdo->prepare($delete_query);
              $stmt_delete->execute(['id'=>$id_delete]);
-             //
+             //Redirigir a user_management
+             //Redirect after processing to user_management
+             header("Location: users_management.php?msg=deleted");
          } catch (PDOException $ex) {
              $alert_message="<div class='alert alert-danger shadow-sm'> Error al eliminar usuario.</div>";
          }
@@ -43,21 +45,37 @@ $alert_message='';
      //Unir usuarios y roles para obtener el nombre del 
      //rol en lugar de solo el id
      //Join users and roles to get the role name instead of just the ID
-     $users_query="SELECT u.id, u.username, u.full_name, r.name as role_name"
-             . "FROM users u JOIN roles r ON u.role_id =r.id"
-             . "ORDER BY u.id DESC";
+     $users_query = "SELECT u.id, u.username, u.full_name, u.role_id, r.name AS role_name
+                FROM users u
+                JOIN roles r ON u.role_id = r.id
+                ORDER BY u.id DESC";
+     $stmt=$pdo->prepare($users_query);
+     $stmt->execute();
+     $users_list=$stmt->fetchAll(PDO::FETCH_ASSOC);
  } catch (PDOException $ex) {
-     die("<div class='alert alert-danger m-4'>Error crítico de base de datos.</div>");
+    die("Error SQL: " . $ex->getMessage());
+    
  }
+ //Obtener roles para el formulario.
+ //Get roles for the form.
+ $roles_query="SELECT id, name FROM roles ORDER BY id";
+ $stmt_roles=$pdo->prepare($roles_query);
+ $stmt_roles->execute();
+ $roles_list=$stmt_roles->fetchAll(PDO::FETCH_ASSOC);
+ 
  //Mensajes de retroalimentación
  //Feedback de retroalimentación
 if (isset($_GET['msg'])) {
-    $msg_type = sanitize_input($_GET['msg']);
-    $msg_text = ($msg_type === 'deleted') ? 'Registro eliminado.' : 'Registro guardado.';
-    $alert_message = "<div class='alert alert-dark alert-dismissible fade show border-0 shadow-sm' role='alert'>
-                        $msg_text
-                        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
-                      </div>";
+    $msg = $_GET['msg'];
+    if ($msg === 'success') {
+        $alert_message = "<div class='alert alert-success border-0 shadow-sm'>Usuario creado con éxito.</div>";
+    } elseif ($msg === 'error_password') {
+        $alert_message = "<div class='alert alert-danger border-0 shadow-sm'>Las contraseñas no coinciden.</div>";
+    } elseif ($msg === 'error_exists') {
+        $alert_message = "<div class='alert alert-warning border-0 shadow-sm'>El usuario ya está registrado.</div>";
+    } elseif ($msg === 'deleted') {
+        $alert_message = "<div class='alert alert-dark border-0 shadow-sm'>Usuario eliminado.</div>";
+    }
 }
     
 ?>
@@ -111,7 +129,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                         </tr>
                     </thead>
                     <tbody class="border-top-0">
-                        <?php if (!empty($users_list)): ?>
+                        <?php if (!empty($users_list)):?>
                             <?php foreach ($users_list as $row): ?>
                             <tr>
                                 <td class="ps-4 py-3 text-dark fw-semibold"><?= sanitize_input($row['username']) ?></td>
@@ -123,8 +141,8 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                                 </td>
                                 <td class="pe-4 py-3 text-end">
                                     <div class="d-flex justify-content-end gap-2">
-                                        <?php if ($row['username'] !== 'ADMIN'): ?>
-                                            <form action="user_management.php" method="POST" onsubmit="return confirm('¿Confirmar eliminación?')">
+                                        <?php if ($row['role_id'] !== 1): ?>
+                                            <form action="users_management.php" method="POST" onsubmit="return confirm('¿Confirmar eliminación?')">
                                                 <input type="hidden" name="action" value="delete">
                                                 <input type="hidden" name="id" value="<?= $row['id'] ?>">
                                                 <button type="submit" class="btn btn-link text-danger text-decoration-none p-0 small">Eliminar</button>
@@ -147,31 +165,32 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
 <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow rounded-4">
-            <form action="insertar.php" method="POST">
+            <!-- Formulario nuevo usuario -->
+            <form action="insert_users.php" method="POST">
                 <div class="modal-header border-0 pt-4 px-4">
                     <h5 class="fw-bold text-bakery">Nuevo Registro de Usuario</h5>
                 </div>
                 <div class="modal-body px-4">
                     <div class="mb-3">
-                        <label class="form-label small text-muted fw-bold">USERNAME</label>
-                        <input type="text" name="user" class="form-control rounded-3 py-2" required placeholder="Ej: JSMITH">
+                        <label class="form-label small text-muted fw-bold">Nombre de usuario</label>
+                        <input type="text" name="user" class="form-control rounded-3 py-2" required placeholder="Ej: JSMITH.TORRES">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small text-muted fw-bold">FULL NAME</label>
+                        <label class="form-label small text-muted fw-bold">Nombre y apellido</label>
                         <input type="text" name="full_name" class="form-control rounded-3 py-2" required>
                     </div>
                     <div class="row">
                         <div class="col-6 mb-3">
-                            <label class="form-label small text-muted fw-bold">PASSWORD</label>
+                            <label class="form-label small text-muted fw-bold">Contraseña</label>
                             <input type="password" name="password" class="form-control rounded-3 py-2" required>
                         </div>
                         <div class="col-6 mb-3">
-                            <label class="form-label small text-muted fw-bold">CONFIRM</label>
+                            <label class="form-label small text-muted fw-bold">Confirmar contraseña</label>
                             <input type="password" name="confirm_password" class="form-control rounded-3 py-2" required>
                         </div>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small text-muted fw-bold">ROLE</label>
+                        <label class="form-label small text-muted fw-bold">ROL</label>
                         <select name="rol_id" class="form-select rounded-3 py-2" required>
                             <option value="" disabled selected>Seleccione un rol...</option>
                             <?php foreach ($roles_list as $role): ?>

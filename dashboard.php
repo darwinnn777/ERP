@@ -93,7 +93,7 @@ try {
                 <div class="card-body text-center">
                     <h4>Empleados</h4>
                     <p class="card-text text-muted">Dar de alta usuarios y asignar roles.</p>
-                    <a href="insert_users.php" class="btn btn-bakery w-100">Gestionar Usuarios</a>
+                    <a href="users_management.php" class="btn btn-bakery w-100">Gestionar Usuarios</a>
                 </div>
             </div>
         </div>
