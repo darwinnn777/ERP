@@ -3,14 +3,14 @@
  * Procesador de Inserción de Usuarios - ERP Bakery
  * User Insertion Processor - ERP Bakery
  */
-
+session_start();
 require_once 'db_erp.php'; 
 require_once 'functions.php';
 
 //SEGURIDAD Y RESTRICCIÓN
 // Usamos require_role que ya creamos en functions.php para centralizar la seguridad
 require_role('admin');
-
+$errors=[];
 //PROCESAR EL FORMULARIO (POST)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
@@ -24,17 +24,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Validaciones básicas
     if (empty($user) || empty($full_name) || empty($pass) || empty($rol_id)) {
-        // En lugar de un echo, enviamos el error por la URL para que se vea en la tabla
-        header("Location: users_management.php?msg=error_fields");
-        exit;
+        $errors[] = "Todos los campos son obligatorios.";
     } 
-    
+    if (strlen($pass) < 5) {
+        $errors[] = "La contraseña es muy corta (mínimo 5 caracteres).";
+    }
     if ($pass !== $pass2) {
-        header("Location: users_management.php?msg=error_password");
+        $errors[] = "Las contraseñas no coinciden.";
+    }
+    //Si hay errores volvemos a users_management.php
+    //If there are errors we return to users_management.php
+    if (!empty($errors)) {
+        $_SESSION['registry_errors'] = $errors;
+        header("Location: users_management.php");
         exit;
     }
-
-    // Hash de la contraseña
+    //Hash de la contraseña
     $pass_hashed = password_hash($pass, PASSWORD_DEFAULT);
     
     try {
@@ -48,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
 
     } catch (PDOException $ex) {
-        // Manejo de duplicados (PostgreSQL: 23505)
+        // Manejo de duplicados (PostgreSQL: 23505) EJ: nombre de usuario duplicado.
         if($ex->getCode() == '23505' || $ex->getCode() == '23000'){
             header("Location: users_management.php?msg=error_exists");
         } else {
