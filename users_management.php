@@ -52,22 +52,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
  }
 //Obtener datos para tabla 
 //FETCH DATA FOR THE TABLE.
- try{
-     
-     //Unir usuarios y roles para obtener el nombre del 
-     //rol en lugar de solo el id
-     //Join users and roles to get the role name instead of just the ID
-     $users_query = "SELECT u.id, u.username, u.full_name, u.role_id, r.name AS role_name
-                FROM users u
-                JOIN roles r ON u.role_id = r.id
-                ORDER BY u.id DESC";
-     $stmt=$pdo->prepare($users_query);
-     $stmt->execute();
-     $users_list=$stmt->fetchAll(PDO::FETCH_ASSOC);
- } catch (PDOException $ex) {
-    die("Error SQL: " . $ex->getMessage());
+ // La búsqueda (si existe)
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+
+try {
+    if ($search !== '') {
+        // Consulta con búsqueda
+        $users_query = "SELECT u.id, u.username, u.full_name, u.role_id, r.name AS role_name
+                        FROM users u
+                        JOIN roles r ON u.role_id = r.id
+                        WHERE u.username ILIKE ? 
+                        ORDER BY u.id DESC";
+        $stmt = $pdo->prepare($users_query);
+        $stmt->execute([$search . '%']); 
+    } else {
+        // Consulta para mostrar todos los datos
+        $users_query = "SELECT u.id, u.username, u.full_name, u.role_id, r.name AS role_name
+                        FROM users u
+                        JOIN roles r ON u.role_id = r.id
+                        ORDER BY u.id DESC";
+        $stmt = $pdo->prepare($users_query);
+        $stmt->execute();
+    }
     
- }
+    // Guardam los resultados ya sea de usando filtro de búsqueda o no.
+    $users_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+} catch (PDOException $ex) {
+    die("Error SQL: " . $ex->getMessage());
+}
  //Obtener roles para el formulario.
  //Get roles for the form.
  $roles_query="SELECT id, name FROM roles ORDER BY id";
@@ -140,7 +153,31 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
     <div class="d-flex justify-content-between align-items-end mb-4">
         <div>
             <h2 class="text-dark fw-bold mb-0">Gestión de Personal</h2>
-            <p class="text-muted small mb-0">Administración de accesos al sistema ERP</p>
+            <form action="users_management.php" method="GET" class="mt-3 mb-4">
+                <div class="input-group">
+                    <input type="text" name="search" id="user_search_input" class="form-control rounded-start-pill ps-3" 
+                           placeholder="Nombre de usuario..." list="user_suggestions" autocomplete="off"
+                           value="<?= isset($_GET['search']) ? sanitize_input($_GET['search']) : '' ?>">
+
+                    <datalist id="user_suggestions">
+                        <?php if (!empty($users_list)): ?>
+                            <?php foreach ($users_list as $user_opt): ?>
+                                <option value="<?= sanitize_input($user_opt['username']) ?>">
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </datalist>
+
+                    <button class="btn btn-outline-secondary rounded-end-pill px-3 d-flex align-items-center" type="submit">
+                        <img src="icons/search.svg" alt="Buscar" style="width: 16px; height: 16px;">
+                    </button>
+                    <?php if (!empty($search)): ?>
+                        <button type="button" class="btn btn-outline-danger ms-2 rounded-pill shadow-sm" 
+                                onclick="window.location.href='users_management.php'">
+                            Mostrar tabla
+                        </button>
+                    <?php endif; ?>
+                </div>
+            </form>
         </div>
         <button type="button" class="btn btn-bakery px-4 rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#addUserModal">
             + Nuevo Usuario
@@ -299,6 +336,22 @@ miModal.addEventListener('show.bs.modal', function (event) {
     document.getElementById('edit_user_id').value = boton.getAttribute('data-bs-id');
     document.getElementById('edit_username').value = boton.getAttribute('data-bs-user');
     document.getElementById('edit_role_id').value = boton.getAttribute('data-bs-role');
+});
+//Envío automático al seleccionar una sugerencia
+//Auto-submit form when a suggestion is selected
+var searchInput = document.getElementById('user_search_input');
+var suggestions = document.getElementById('user_suggestions');
+
+searchInput.addEventListener('input', function() {
+    var options = suggestions.options;
+    for (var i = 0; i < options.length; i++) {
+        //Si el texto escrito coincide exactamente con una opción, se envía
+        //If the typed text matches exactly an option, submit
+        if (options[i].value === this.value) {
+            this.form.submit();
+            break;
+        }
+    }
 });
 </script>
 </body>
