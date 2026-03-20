@@ -53,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 //Obtener datos para tabla 
 //FETCH DATA FOR THE TABLE.
  // La búsqueda (si existe)
+ //The search (if exist)
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
 try {
