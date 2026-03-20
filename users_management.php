@@ -57,7 +57,8 @@ $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
 try {
     if ($search !== '') {
-        // Consulta con búsqueda
+        // Consulta con filtro de búsqueda.
+        //Query with search filter.
         $users_query = "SELECT u.id, u.username, u.full_name, u.role_id, r.name AS role_name
                         FROM users u
                         JOIN roles r ON u.role_id = r.id
@@ -67,6 +68,7 @@ try {
         $stmt->execute([$search . '%']); 
     } else {
         // Consulta para mostrar todos los datos
+        //Query to show all data
         $users_query = "SELECT u.id, u.username, u.full_name, u.role_id, r.name AS role_name
                         FROM users u
                         JOIN roles r ON u.role_id = r.id
@@ -75,7 +77,8 @@ try {
         $stmt->execute();
     }
     
-    // Guardam los resultados ya sea de usando filtro de búsqueda o no.
+    // Guarda los resultados ya sea de usando filtro de búsqueda o no.
+    //Save the results whether using search filter or not.
     $users_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $ex) {
