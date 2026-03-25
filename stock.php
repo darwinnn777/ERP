@@ -68,7 +68,7 @@ try {
         
         <?php if (has_role('admin')): ?>
             <a href="new_batch.php" class="btn btn-bakery fw-bold px-4 py-2 shadow-sm">
-                ➕ Añadir Nuevo Lote
+                + Añadir Nuevo Lote
             </a>
         <?php endif; ?>
     </div>
@@ -120,15 +120,15 @@ try {
                                 ?>
 
                                 <tr class="<?= $clase_color ?>">
-                                    <td class="fw-bold py-3"><?= htmlspecialchars($lote['nombre_producto']) ?></td>
+                                    <td class="fw-bold py-3"><?= sanitize_input($lote['nombre_producto']) ?></td>
                                     
                                     <td class="py-3 fw-bold text-success">
                                         <?= number_format($lote['price_sell'], 2, ',', '.') ?> €
                                     </td>
                                     
-                                    <td class="py-3"><?= htmlspecialchars($lote['lot_number']) ?></td>
-                                    <td class="py-3"><?= htmlspecialchars($lote['nombre_almacen']) ?></td>
-                                    <td class="py-3"><?= htmlspecialchars($lote['quantity']) ?> und/kg</td>
+                                    <td class="py-3"><?= sanitize_input($lote['lot_number']) ?></td>
+                                    <td class="py-3"><?= sanitize_input($lote['nombre_almacen']) ?></td>
+                                    <td class="py-3"><?= sanitize_input($lote['quantity']) ?> und/kg</td>
                                     <td class="py-3">
                                         <?= $lote['expiration_date'] ? date('d-m-Y', strtotime($lote['expiration_date'])) : '-' ?>
                                     </td>
@@ -139,7 +139,7 @@ try {
                                             <form action="apply_discount.php" method="POST" class="mt-2">
                                                 <input type="hidden" name="id_producto" value="<?= $lote['id_producto'] ?>">
                                                 <button type="submit" class="btn btn-sm btn-danger fw-bold shadow-sm">
-                                                    📉 Aplicar 50%
+                                                    Aplicar 50%
                                                 </button>
                                             </form>
                                         <?php endif; ?>
