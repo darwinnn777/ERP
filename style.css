@@ -34,4 +34,38 @@ body{
 .text-bakery{
     color:var(--color-bakery);
 }
+.admin-layout {
+    display: block !important;
+    height: auto !important;
+    padding: 2rem 0;
+}
 
+/*Cabecera de tablas con tu color corporativo */
+.thead-bakery th {
+    background-color: var(--color-bakery) !important;
+    color: white !important;
+    padding: 15px !important;
+    border: none;
+}
+
+/*Etiquetas redondeadas para tipos de producto */
+.badge-ingredient {
+    background-color: #6c757d; /*Gris para materias primas */
+    color: white;
+}
+
+.badge-final {
+    background-color: var(--color-bakery); /*Color para productos de venta */
+    color: white;
+}
+
+/* Efecto suave al pasar el ratón por las filas */
+.table-hover tbody tr:hover {
+    background-color: rgba(163, 93, 69, 0.05) !important;
+}
+
+/* Redondear las esquinas de la tabla (usando tu card-login) */
+.card-table {
+    overflow: hidden;
+    border: none;
+}
