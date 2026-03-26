@@ -38,9 +38,12 @@ function is_logged_in(): bool {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
-    // Verificamos tanto el flag de autorizado como que el ID de usuario exista
-    return isset($_SESSION['autorizado']) && $_SESSION['autorizado'] === 
-            true && isset($_SESSION['user_id']);
+    //Verificamos: 1. Flag de OK, 2. ID de usuario, 3. Que el navegador no haya cambiado
+    return isset($_SESSION['autorizado']) && 
+           $_SESSION['autorizado'] === true && 
+           isset($_SESSION['user_id']) &&
+           isset($_SESSION['user_browser']) && 
+           $_SESSION['user_browser'] === $_SERVER['HTTP_USER_AGENT'];
 }
 
 // 3. Restringe el acceso a una pagina segun el rol.

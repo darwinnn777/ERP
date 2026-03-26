@@ -40,6 +40,11 @@ try {
             // Verify the password with the stored hash
             if ($fila && password_verify($password, $fila['password_hash'])) {
                 
+                // Cambia la llave vieja por una nueva
+                session_regenerate_id(true); 
+                
+                //Guarda la huella del navegador
+                 $_SESSION['user_browser'] = $_SERVER['HTTP_USER_AGENT']; 
                 // Guardar datos en la sesión
                 // Store data in the session
                 $_SESSION['user_id'] = $fila['id']; // CRITICO: Necesario para get_user_role()
