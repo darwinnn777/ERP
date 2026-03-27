@@ -94,6 +94,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                 <thead class="thead-bakery text-center">
                     <tr>
                         <th>SKU</th>
+                        <th>Imagen</th>
                         <th class="text-start">Nombre del Producto</th>
                         <th>Tipo</th>
                         <th>Medida</th>
@@ -105,6 +106,13 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                         <?php foreach ($all_products as $p): ?>
                         <tr>
                             <td class="text-muted small"><?= $p['sku'] ?></td>
+                            <td>
+                                <?php if ($p['image_url']): ?>
+                                    <img src="<?= $p['image_url'] ?>" width="40" height="40" class="rounded shadow-sm" alt="Foto">
+                                <?php else: ?>
+                                    <span class="text-muted small">Sin foto</span>
+                                <?php endif; ?>
+                            </td>
                             <td class="text-start fw-bold"><?= sanitize_input($p['name']) ?></td>
                             <td>
                                 <?php 

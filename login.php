@@ -47,9 +47,10 @@ try {
                  $_SESSION['user_browser'] = $_SERVER['HTTP_USER_AGENT']; 
                 // Guardar datos en la sesión
                 // Store data in the session
-                $_SESSION['user_id'] = $fila['id']; // CRITICO: Necesario para get_user_role()
+                 //Necesario para get_user_role()
+                $_SESSION['user_id'] = $fila['id']; 
                 $_SESSION['usuario'] = $fila['username'];
-                $_SESSION['rol'] = strtolower($fila['role_name']); // Normalizamos a minúsculas
+                $_SESSION['rol'] = strtolower($fila['role_name']); 
                 $_SESSION['autorizado'] = true;
                 
                 // Redirigir al panel principal
@@ -66,8 +67,7 @@ try {
 } catch (PDOException $ex) {
     // Capturar errores del sistema
     // Catch system errors
-    // error_log($ex->getMessage()); // Opcional: para depurar
-    $errors = "Error de conexión con el sistema."; 
+    $errors = "Error en la base de datos: ". $ex->getMessage(); 
 }
 ?>
 <!DOCTYPE html>
@@ -96,7 +96,7 @@ try {
                     
                     <?php if (!empty($errors)): ?>
                         <div class="alert alert-danger py-2 text-center" style="font-size: 0.9rem;">
-                            <?= htmlspecialchars($errors) ?>
+                            <?= sanitize_input($errors) ?>
                         </div>
                     <?php endif; ?>
 
