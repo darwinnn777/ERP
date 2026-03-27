@@ -56,5 +56,37 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
         }
         exit;
     }
+        //Registrar o editar producto
+        //Register or edit product
+    $sku= strtoupper(trim($_POST['sku'] ?? ''));
+    $name=trim($_POST['name'] ?? '');
+    $type= $_POST['type'] ?? 'Ingredient';
+    $unit= $_POST['unit'] ?? 'unit';
+    $id= $_POST['id'] ?? null;
     
+    if(empty($sku) || empty($name)){
+        die("Error: SKU y nombre tiene que tener datos.");
+    }
+    try{
+        if($id){
+            //Actualizar producto
+            //Update product
+            $sql="UPDATE products SET sku=?, name=?, product_type=?, unit_of_measure = ? WHERE id =?";
+            $stmt=$pdo->prepare($sql);
+            $stmt->execute([$sku,$name,$type,$unit,$id]);
+        }else{
+            //Insertar nuevo producto
+            //Insert new product
+            $sql="INSERT INTO products (sku, name, product_type, unit_of_measure,price_sell,price_buy) 
+                  VALUES (?,?,?,?,0,0)";
+            $stmt=$pdo->prepare($sql);
+            $stmt->execute([$sku, $name, $type,$unit]);
+        }
+        header("Location: products_management.php?msg=ok");
+    } catch (PDOException $ex) {
+        die("Error en la base de datos: ". $ex->getMessage());
+    }
+}else{
+    header("Location: products_management.php");
+    exit;
 }
