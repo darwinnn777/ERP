@@ -108,9 +108,15 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                             <td class="text-muted small"><?= $p['sku'] ?></td>
                             <td>
                                 <?php if ($p['image_url']): ?>
-                                    <img src="<?= $p['image_url'] ?>" width="40" height="40" class="rounded shadow-sm" alt="Foto">
+                                    <img src="<?= $p['image_url'] ?>" width="50" class="rounded shadow-sm">
                                 <?php else: ?>
-                                    <span class="text-muted small">Sin foto</span>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-outline-primary" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#imageModal" 
+                                            onclick="prepare_modal('<?= $p['id'] ?>')">
+                                        + Subir Imagen
+                                    </button>
                                 <?php endif; ?>
                             </td>
                             <td class="text-start fw-bold"><?= sanitize_input($p['name']) ?></td>
@@ -130,7 +136,13 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                                         Ver Receta
                                     </a>
                                 <?php endif; ?>
-                                <button class="btn btn-sm btn-outline-dark">Editar</button>
+                                <button type="button" 
+                                    class="btn btn-sm btn-outline-dark" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#editModal" 
+                                    onclick="prepare_edit_modal('<?= $p['id'] ?>', '<?= $p['sku'] ?>', '<?= $p['name'] ?>', '<?= $p['product_type'] ?>', '<?= $p['unit_of_measure'] ?>')">
+                                    Editar
+                                </button>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -144,6 +156,96 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
         </div>
     </div>
 </div>
+<div class="modal fade" id="imageModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      
+      <div class="modal-header">
+        <h5 class="modal-title">Subir Imagen</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      
+      <form action="save_product.php" method="POST" enctype="multipart/form-data">
+        <div class="modal-body">
+          
+          <label class="form-label fw-bold">Selecciona el archivo:</label>
+          <input type="file" name="product_image" class="form-control" accept="image/*" required>
+          
+          <br>
 
+          <input type="hidden" name="id" id="modal_product_id">
+          <input type="hidden" name="action" value="upload_image">
+          
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar Imagen</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="editModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Producto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="save_product.php" method="POST">
+        <div class="modal-body">
+          <input type="hidden" name="id" id="edit_id">
+          
+          <div class="mb-3">
+            <label class="form-label fw-bold">SKU</label>
+            <input type="text" name="sku" id="edit_sku" class="form-control" required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label fw-bold">Nombre</label>
+            <input type="text" name="name" id="edit_name" class="form-control" required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label fw-bold">Tipo</label>
+            <select name="type" id="edit_type" class="form-select">
+                <option value="Final Product">Producto Final (Venta)</option>
+                <option value="Ingredient">Ingrediente (Materia Prima)</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-bold">Unidad de Medida</label>
+            <input type="text" name="unit" id="edit_unit" class="form-control" placeholder="ej: kg, ud, L">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Actualizar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    //Función para pasar el id al modal
+    //Function to pass the ID to the modal
+    function prepare_modal(id){
+        //Ponemos el ID en el campo oculto del formulario
+        document.getElementById('modal_product_id').value=id;
+    }
+    function prepare_edit_modal(id, sku, name, type, unit) {
+    // Rellenamos los campos del modal con los datos recibidos
+    document.getElementById('edit_id').value = id;
+    document.getElementById('edit_sku').value = sku;
+    document.getElementById('edit_name').value = name;
+    document.getElementById('edit_type').value = type;
+    document.getElementById('edit_unit').value = unit;
+}
+</script>
 </body>
 </html>
