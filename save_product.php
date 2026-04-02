@@ -56,6 +56,9 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
         }
         exit;
     }
+    //Eliminar producto
+    //Delete product
+    if(isset($_POST['action']))
         //Registrar o editar producto
         //Register or edit product
     $sku= strtoupper(trim($_POST['sku'] ?? ''));

@@ -143,6 +143,17 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                                     onclick="prepare_edit_modal('<?= $p['id'] ?>', '<?= $p['sku'] ?>', '<?= $p['name'] ?>', '<?= $p['product_type'] ?>', '<?= $p['unit_of_measure'] ?>')">
                                     Editar
                                 </button>
+                                <form action="save_product.php" method="POST" style="display:inline;" 
+                                        onsubmit="return confirm('¿Eliminar el producto <?= addslashes($p['name']) ?>?');">
+
+                                      <input type="hidden" name="id" value="<?= $p['id'] ?>">
+
+                                      <input type="hidden" name="action" value="delete_product">
+
+                                      <button type="submit" class="btn btn-sm btn-outline-danger">
+                                          Borrar
+                                      </td>
+                                </form>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -245,6 +256,13 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
     document.getElementById('edit_name').value = name;
     document.getElementById('edit_type').value = type;
     document.getElementById('edit_unit').value = unit;
+}
+//Función para confirmar eliminar producto
+function confirm_delete(id, name) {
+    if (confirm("¿Estás seguro de que quieres eliminar el producto: " + name + "?")) {
+        // Redirigimos con la acción de borrar a save_product.php
+        window.location.href = "save_product.php?action=delete&id=" + id;
+    }
 }
 </script>
 </body>
