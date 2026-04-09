@@ -84,6 +84,16 @@ try {
                 </div>
             </div>
         </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h4>Catálogo de productos</h4>
+                    <p class="card-text text-muted">Añadir productos, quitar productos.</p>
+                    <a href="products_management.php" class="btn btn-bakery w-100">Entrar a catálogo</a>
+                </div>
+            </div>
+        </div>
         <?php endif; ?>
 
 

@@ -121,4 +121,18 @@ function sanitize_input($input) {
     }
     return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
 }
+//7. CSRF token para seguridad de formularios
+//7. CSRF toekn to security of form.
+function csrf_token() {
+    if (!isset($_SESSION['csrf'])) {
+        $_SESSION['csrf'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf'];
+}
+
+function csrf_check($token) {
+    if (!isset($_SESSION['csrf']) || $token !== $_SESSION['csrf']) {
+        die("CSRF inválido");
+    }
+}
 ?>

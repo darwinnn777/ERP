@@ -12,7 +12,9 @@ require_role(['admin', 'obrador']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
-    // --- CASE A: UPLOAD IMAGE ---
+    //VERIFY CSRF
+    csrf_check($_POST['csrf_token'] ?? '');
+    // UPLOAD IMAGE 
     if (isset($_POST['action']) && $_POST['action'] === 'upload_image') {
         $product_id = $_POST['id'];
         $directory = "img_products/";
@@ -48,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // --- CASE B: DELETE PRODUCT ---
+    //DELETE PRODUCT 
     if (isset($_POST['action']) && $_POST['action'] === 'delete_product') {
         $product_id = $_POST['id'];
         try {
@@ -66,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // --- CASE C: REGISTER OR EDIT PRODUCT ---
+    // REGISTER OR EDIT PRODUCT 
     $sku = strtoupper(trim($_POST['sku'] ?? ''));
     $name = trim($_POST['name'] ?? '');
     $type = $_POST['type'] ?? 'Ingredient';

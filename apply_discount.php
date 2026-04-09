@@ -1,28 +1,50 @@
 <?php
+// Iniciar sesión y cargar configuración
+// Start session and load configuration
+session_start();
 require_once 'functions.php';
 require_once 'db_erp.php';
 
-// Solo el admin o supervisor debería poder cambiar precios
-require_role(['admin']); 
+// SEGURIDAD-Solo administradores pueden aplicar descuentos
+// SECURITY-Only administrators can apply discounts
+require_role(['admin']);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_producto'])) {
-    $id_producto = $_POST['id_producto'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Obtener y castear el ID del producto
+    // Get and cast product ID
+    $product_id = (int)($_POST['product_id'] ?? 0);
 
-    try {
-        // Dividimos el precio actual a la mitad en la tabla products
-        $sql = "UPDATE products SET price_sell = (price_sell / 2) WHERE id = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([$id_producto]);
+    if ($product_id > 0) {
+        try {
+            // Actualizar precio y marcar como descontado solo si no lo estaba
+            // Update price and mark as discounted only if it wasn't already
+            $sql = "UPDATE products 
+                    SET price_sell = price_sell / 2, 
+                        is_discounted = TRUE 
+                    WHERE id = ? 
+                      AND is_discounted = FALSE 
+                      AND product_type = 'Final Product'";
+            
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$product_id]);
 
-        // Volvemos a la página de stock
-        header("Location: stock.php?mensaje=descuento_ok");
-        exit();
+            // Verificar si hubo cambios para dar feedback preciso
+            // Check if any row was affected to provide precise feedback
+            if ($stmt->rowCount() > 0) {
+                header("Location: stock.php?msg=discount_ok");
+            } else {
+                header("Location: stock.php?msg=no_change");
+            }
+            exit;
 
-    } catch (PDOException $e) {
-        die("Error al aplicar descuento: " . $e->getMessage());
+        } catch (PDOException $e) {
+            header("Location: stock.php?msg=error");
+            exit;
+        }
     }
-} else {
-    header("Location: stock.php");
-    exit();
 }
-?>
+
+// Redirección de seguridad si se accede directamente
+// Security redirect if accessed directly
+header("Location: stock.php");
+exit;
