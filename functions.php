@@ -135,13 +135,20 @@ function csrf_check($token) {
         die("CSRF inválido");
     }
 }
-//UNIDADES
+//8.UNIDADES
 function get_units() {
     return [
         'kg' => 'Kilogramos (kg)',
         'g'  => 'Gramos (g)',
         'l'  => 'Litros (L)',
         'ud' => 'Unidades (ud)'
+    ];
+}
+//9.Tipos de producto
+function get_product_types() {
+    return [
+        'Ingredient'    => 'Materia Prima / Ingrediente',
+        'Final Product' => 'Producto Final / Venta'
     ];
 }
 ?>

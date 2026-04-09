@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             header("Location: users_management.php?msg=deleted");
             exit;
         } catch (PDOException $ex) {
-            $alert_message = "<div class='alert alert-danger shadow-sm'>Error al eliminar usuario / Error deleting user.</div>";
+            $alert_message = "<div class='alert alert-danger shadow-sm rounded-4'>Error al eliminar usuario.</div>";
         }
     }
 }
@@ -89,8 +89,8 @@ try {
 
 // --- MENSAJES DE FEEDBACK / FEEDBACK MESSAGES ---
 if (isset($_SESSION['registry_errors'])) {
-    $alert_message = "<div class='alert alert-danger border-0 shadow-sm'>
-                        <p class='mb-1 fw-bold small text-uppercase'>Errores de validación / Validation errors:</p>
+    $alert_message = "<div class='alert alert-danger border-0 shadow-sm rounded-4'>
+                        <p class='mb-1 fw-bold small text-uppercase'>Errores de validación:</p>
                         <ul class='mb-0 small'>";
     foreach ($_SESSION['registry_errors'] as $error) {
         $alert_message .= "<li>" . $error . "</li>";
@@ -100,11 +100,11 @@ if (isset($_SESSION['registry_errors'])) {
 } elseif (isset($_GET['msg'])) {
     $msg = $_GET['msg'];
     switch ($msg) {
-        case 'success': $alert_message = "<div class='alert alert-success border-0 shadow-sm'>Usuario creado / User created.</div>"; break;
-        case 'error_exists': $alert_message = "<div class='alert alert-warning border-0 shadow-sm'>El usuario ya existe / User already exists.</div>"; break;
-        case 'deleted': $alert_message = "<div class='alert alert-dark border-0 shadow-sm'>Usuario eliminado / User deleted.</div>"; break;
-        case 'updated': $alert_message = "<div class='alert alert-info border-0 shadow-sm'>Rol actualizado / Role updated.</div>"; break;
-        case 'error_tech': $alert_message = "<div class='alert alert-danger border-0 shadow-sm'>Error técnico / Technical error.</div>"; break;
+        case 'success': $alert_message = "<div class='alert alert-success border-0 shadow-sm rounded-4'>Usuario creado correctamente.</div>"; break;
+        case 'error_exists': $alert_message = "<div class='alert alert-warning border-0 shadow-sm rounded-4'>El usuario ya existe.</div>"; break;
+        case 'deleted': $alert_message = "<div class='alert alert-dark border-0 shadow-sm rounded-4'>Usuario eliminado.</div>"; break;
+        case 'updated': $alert_message = "<div class='alert alert-info border-0 shadow-sm rounded-4'>Rol actualizado correctamente.</div>"; break;
+        case 'error_tech': $alert_message = "<div class='alert alert-danger border-0 shadow-sm rounded-4'>Error técnico del sistema.</div>"; break;
     }
 }
 ?>
@@ -118,7 +118,7 @@ if (isset($_SESSION['registry_errors'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="flex-column align-items-stretch p-4">
+<body class="flex-column align-items-stretch p-4 bg-light">
 
 <div class="container mt-4">
     <nav aria-label="breadcrumb" class="mb-4">
@@ -130,29 +130,34 @@ if (isset($_SESSION['registry_errors'])) {
 
     <div class="d-flex justify-content-between align-items-end mb-4">
         <div>
-            <h2 class="text-dark fw-bold mb-0">Gestión de Personal / Staff Management</h2>
+            <h2 class="text-dark fw-bold mb-0">Gestión de Personal</h2>
             <form action="users_management.php" method="GET" class="mt-3">
-                <div class="input-group">
-                    <input type="text" name="search" id="user_search_input" class="form-control rounded-start-pill ps-3" 
-                           placeholder="Buscar usuario / Search user..." list="user_suggestions" autocomplete="off"
-                           value="<?= isset($_GET['search']) ? sanitize_input($_GET['search']) : '' ?>">
+                <div class="input-group shadow-sm rounded-pill overflow-hidden border">
+                    <input type="text" name="search" id="user_search_input" class="form-control border-0 ps-3" 
+                           placeholder="Buscar usuario..." list="user_suggestions" autocomplete="off"
+                           value="<?= sanitize_input($search) ?>">
                     <datalist id="user_suggestions">
                         <?php foreach ($users_list as $user_opt): ?>
                             <option value="<?= sanitize_input($user_opt['username']) ?>">
                         <?php endforeach; ?>
                     </datalist>
-                    <button class="btn btn-outline-secondary rounded-end-pill px-3" type="submit">Buscar</button>
+                    
+                    <button class="btn btn-white text-secondary border-start" type="submit">Buscar</button>
+                    
+                    <?php if ($search !== ''): ?>
+                        <a href="users_management.php" class="btn btn-light text-danger border-start px-3">Limpiar</a>
+                    <?php endif; ?>
                 </div>
             </form>
         </div>
-        <button type="button" class="btn btn-bakery px-4 rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#addUserModal">
-            + Nuevo Usuario / New User
+        <button type="button" class="btn btn-bakery px-4 rounded-pill fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
+            + Nuevo Usuario
         </button>
     </div>
 
     <?= $alert_message ?>
 
-    <div class="card card-login border-0 shadow-sm">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="bg-light">
@@ -174,10 +179,10 @@ if (isset($_SESSION['registry_errors'])) {
                             </td>
                             <td class="py-3 text-center">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <?php if ($row['id'] === $_SESSION['user_id']): ?>
+                                    <?php if ($row['id'] == ($_SESSION['user_id'] ?? 0)): ?>
                                         <span class="text-muted small fw-bold">ONLINE</span>
                                     <?php else: ?>
-                                        <form action="users_management.php" method="POST" onsubmit="return confirm('Confirmar eliminación / Confirm delete?')">
+                                        <form action="users_management.php" method="POST" onsubmit="return confirm('¿Confirmar eliminación?')">
                                             <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="id" value="<?= $row['id'] ?>">
@@ -194,7 +199,7 @@ if (isset($_SESSION['registry_errors'])) {
                         </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <tr><td colspan="4" class="text-center py-5">No hay datos / No data.</td></tr>
+                        <tr><td colspan="4" class="text-center py-5 text-muted">No se encontraron resultados.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
@@ -208,29 +213,29 @@ if (isset($_SESSION['registry_errors'])) {
             <form action="insert_users.php" method="POST">
                 <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                 <div class="modal-header border-0 pt-4 px-4">
-                    <h5 class="fw-bold text-bakery">Nuevo Registro / New Register</h5>
+                    <h5 class="fw-bold text-bakery">Registrar Nuevo Empleado</h5>
                 </div>
                 <div class="modal-body px-4">
                     <div class="mb-3">
-                        <label class="form-label small text-muted fw-bold">Usuario / Username</label>
+                        <label class="form-label small text-muted fw-bold text-uppercase">Nombre de Usuario</label>
                         <input type="text" name="user" class="form-control rounded-3" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small text-muted fw-bold">Nombre Completo / Full Name</label>
+                        <label class="form-label small text-muted fw-bold text-uppercase">Nombre Completo</label>
                         <input type="text" name="full_name" class="form-control rounded-3" required>
                     </div>
                     <div class="row">
                         <div class="col-6 mb-3">
-                            <label class="form-label small text-muted fw-bold">Pass</label>
+                            <label class="form-label small text-muted fw-bold text-uppercase">Contraseña</label>
                             <input type="password" name="password" class="form-control rounded-3" required>
                         </div>
                         <div class="col-6 mb-3">
-                            <label class="form-label small text-muted fw-bold">Confirm Pass</label>
+                            <label class="form-label small text-muted fw-bold text-uppercase">Confirmar</label>
                             <input type="password" name="confirm_password" class="form-control rounded-3" required>
                         </div>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small text-muted fw-bold">Rol / Role</label>
+                        <label class="form-label small text-muted fw-bold text-uppercase">Rol Asignado</label>
                         <select name="rol_id" class="form-select rounded-3" required>
                             <?php foreach ($roles_list as $role): ?>
                                 <option value="<?= $role['id'] ?>"><?= $role['name'] ?></option>
@@ -240,7 +245,7 @@ if (isset($_SESSION['registry_errors'])) {
                 </div>
                 <div class="modal-footer border-0 p-4 pt-2">
                     <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-bakery rounded-pill px-4">Guardar / Save</button>
+                    <button type="submit" class="btn btn-bakery rounded-pill px-4 fw-bold">Guardar Usuario</button>
                 </div>
             </form>
         </div>
@@ -255,15 +260,15 @@ if (isset($_SESSION['registry_errors'])) {
                 <input type="hidden" name="action" value="update_role">
                 <input type="hidden" name="id" id="edit_user_id">
                 <div class="modal-header border-0 pt-4 px-4">
-                    <h5 class="fw-bold text-bakery">Editar Rol / Edit Role</h5>
+                    <h5 class="fw-bold text-bakery">Editar Rol de Usuario</h5>
                 </div>
                 <div class="modal-body px-4">
                     <div class="mb-3">
-                        <label class="form-label small text-muted fw-bold">Usuario / User</label>
+                        <label class="form-label small text-muted fw-bold text-uppercase">Usuario Seleccionado</label>
                         <input type="text" id="edit_username" class="form-control bg-light" readonly>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small text-muted fw-bold">Nuevo Rol / New Role</label>
+                        <label class="form-label small text-muted fw-bold text-uppercase">Nuevo Rol</label>
                         <select name="role_id" id="edit_role_id" class="form-select rounded-3" required>
                             <?php foreach ($roles_list as $role): ?>
                                 <option value="<?= $role['id'] ?>"><?= $role['name'] ?></option>
@@ -273,7 +278,7 @@ if (isset($_SESSION['registry_errors'])) {
                 </div>
                 <div class="modal-footer border-0 p-4 pt-2">
                     <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="submit" class="btn btn-bakery rounded-pill px-4">Actualizar / Update</button>
+                    <button type="submit" class="btn btn-bakery rounded-pill px-4 fw-bold">Actualizar Datos</button>
                 </div>
             </form>
         </div>

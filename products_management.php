@@ -94,10 +94,12 @@ if (isset($_GET['msg'])) {
                 <div class="col-md-2">
                     <label class="small fw-bold">Tipo</label>
                     <select name="type" class="form-select">
-                        <option value="Final Product">Producto Final</option>
-                        <option value="Ingredient">Ingrediente</option>
+                        <?php foreach(get_product_types() as $val => $text): ?>
+                            <option value="<?= $val ?>"><?= $text ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
+                
                 <div class="col-md-2">
                     <label class="small fw-bold">Unidad Medida</label>
                     <select name="unit" class="form-select" required>
@@ -228,25 +230,24 @@ if (isset($_GET['msg'])) {
                     </div>
 
                     <div class="mb-3">
-                        <label class="small fw-bold">Tipo</label>
-                        <select name="type" id="edit_type" class="form-select">
-                            <option value="Final Product">Producto Final</option>
-                            <option value="Ingredient">Ingrediente</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="small fw-bold">Unidad de Medida</label>
-                        <select name="unit" id="edit_unit" class="form-select" required>
-                            <option value="kg">Kilogramos (kg)</option>
-                            <option value="g">Gramos (g)</option>
-                            <option value="l">Litros (L)</option>
-                            <option value="ml">Mililitros (ml)</option>
-                            <option value="ud">Unidades (ud)</option>
-                            <option value="docena">Docena</option>
-                            <option value="paquete">Paquete</option>
-                        </select>
-                    </div>
+                    <label class="small fw-bold">Tipo</label>
+                    <select name="type" class="form-select">
+                        <?php foreach(get_product_types() as $val => $text): ?>
+                            <option value="<?= $val ?>"><?= $text ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="small fw-bold">Unidad Medida</label>
+                    <select name="unit" class="form-select" required>
+                        <option value="" disabled selected>Elegir...</option>
+                        <?php foreach(get_units() as $val => $text): ?>
+                            <option value="<?= $val ?>"><?= $text ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                    
                 </div>
                 <div class="modal-footer border-0">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
@@ -260,24 +261,33 @@ if (isset($_GET['msg'])) {
 <!-- Modals y scripts para editar y subir imagen -->
 <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Subir Imagen del Producto</h5>
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header text-white" style="background-color: var(--color-bakery);">
+                <h5 class="modal-title fw-bold">Actualizar Imagen del Producto</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
+            
             <form action="save_product.php" method="POST" enctype="multipart/form-data">
-                <div class="modal-body">
+                <div class="modal-body p-4">
                     <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                     <input type="hidden" name="action" value="upload_image">
                     <input type="hidden" name="id" id="modal_product_id">
                     
                     <div class="mb-3 text-center">
-                        <label class="form-label d-block small fw-bold">Selecciona el archivo (JPG, PNG, WEBP)</label>
-                        <input type="file" name="product_image" class="form-control" accept="image/*" required>
+                        <div class="mb-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="var(--color-bakery)" class="bi bi-cloud-arrow-up opacity-75" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M7.646 5.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2z"/>
+                                <path d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383zm.653.757c-.757.653-1.153 1.44-1.153 2.056v.448l-.445.049C2.064 6.805 1 7.952 1 9.318 1 10.785 2.23 12 3.781 12h8.906C13.98 12 15 10.988 15 9.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 4.825 10.328 3 8 3a4.53 4.53 0 0 0-2.941 1.1z"/>
+                            </svg>
+                        </div>
+                        <label class="form-label d-block small fw-bold text-muted">Formatos permitidos: JPG, PNG o WEBP</label>
+                        <input type="file" name="product_image" class="form-control border-bakery" accept="image/*" required>
                     </div>
                 </div>
-                <div class="modal-footer border-0">
-                    <button type="submit" class="btn btn-primary w-100">Subir Imagen</button>
+                
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-bakery rounded-pill px-4 fw-bold">Subir Imagen</button>
                 </div>
             </form>
         </div>
