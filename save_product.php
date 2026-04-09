@@ -86,8 +86,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
+        // EDITAR , si el id es mayor que cero ya existe
         if ($product_id > 0) {
-            // EDITAR
+            
             $sql = "UPDATE products SET sku = ?, name = ?, product_type = ?, unit_of_measure = ? WHERE id = ?";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$sku, $name, $type, $unit, $product_id]);

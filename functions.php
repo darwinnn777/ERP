@@ -135,4 +135,13 @@ function csrf_check($token) {
         die("CSRF inválido");
     }
 }
+//UNIDADES
+function get_units() {
+    return [
+        'kg' => 'Kilogramos (kg)',
+        'g'  => 'Gramos (g)',
+        'l'  => 'Litros (L)',
+        'ud' => 'Unidades (ud)'
+    ];
+}
 ?>

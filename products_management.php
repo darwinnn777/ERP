@@ -98,25 +98,16 @@ if (isset($_GET['msg'])) {
                         <option value="Ingredient">Ingrediente</option>
                     </select>
                 </div>
-
                 <div class="col-md-2">
                     <label class="small fw-bold">Unidad Medida</label>
                     <select name="unit" class="form-select" required>
                         <option value="" disabled selected>Elegir...</option>
-                        <optgroup label="Peso/Volumen">
-                            <option value="kg">Kilogramos (kg)</option>
-                            <option value="g">Gramos (g)</option>
-                            <option value="l">Litros (L)</option>
-                            <option value="ml">Mililitros (ml)</option>
-                        </optgroup>
-                        <optgroup label="Unidades">
-                            <option value="ud">Unidades (ud)</option>
-                            <option value="docena">Docena</option>
-                            <option value="paquete">Paquete</option>
-                        </optgroup>
+                        <?php foreach(get_units() as $val => $text): ?>
+                            <option value="<?= $val ?>"><?= $text ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
-
+                
                 <div class="col-md-3 d-flex align-items-end">
                     <button type="submit" class="btn btn-bakery w-100 fw-bold">Guardar Producto</button>
                 </div>
@@ -178,7 +169,7 @@ if (isset($_GET['msg'])) {
                                 <?php if($is_final): ?>
                                     <a href="recipe_details.php?id=<?= $safe_id ?>" class="btn btn-sm btn-primary">Receta</a>
                                 <?php endif; ?>
-
+                                    
                                 <button type="button" class="btn btn-sm btn-outline-dark"
                                     data-bs-toggle="modal" data-bs-target="#editModal"
                                     onclick="prepare_edit_modal(
@@ -190,6 +181,7 @@ if (isset($_GET['msg'])) {
                                     )">
                                     Editar
                                 </button>
+                                    
 
                                 <form action="save_product.php" method="POST" style="display:inline;"
                                       onsubmit="return confirm('¿Borrar <?= htmlspecialchars($p['name'], ENT_QUOTES) ?>?');">
@@ -212,8 +204,85 @@ if (isset($_GET['msg'])) {
         </div>
     </div>
 </div>
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title">Editar Producto</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="save_product.php" method="POST">
+                <div class="modal-body">
+                    <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                    
+                    <input type="hidden" name="id" id="edit_id">
+                    
+                    <div class="mb-3">
+                        <label class="small fw-bold">Código SKU</label>
+                        <input type="text" name="sku" id="edit_sku" class="form-control" required>
+                    </div>
 
+                    <div class="mb-3">
+                        <label class="small fw-bold">Nombre</label>
+                        <input type="text" name="name" id="edit_name" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="small fw-bold">Tipo</label>
+                        <select name="type" id="edit_type" class="form-select">
+                            <option value="Final Product">Producto Final</option>
+                            <option value="Ingredient">Ingrediente</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="small fw-bold">Unidad de Medida</label>
+                        <select name="unit" id="edit_unit" class="form-select" required>
+                            <option value="kg">Kilogramos (kg)</option>
+                            <option value="g">Gramos (g)</option>
+                            <option value="l">Litros (L)</option>
+                            <option value="ml">Mililitros (ml)</option>
+                            <option value="ud">Unidades (ud)</option>
+                            <option value="docena">Docena</option>
+                            <option value="paquete">Paquete</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-bakery fw-bold">Actualizar Producto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+ 
 <!-- Modals y scripts para editar y subir imagen -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Subir Imagen del Producto</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="save_product.php" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                    <input type="hidden" name="action" value="upload_image">
+                    <input type="hidden" name="id" id="modal_product_id">
+                    
+                    <div class="mb-3 text-center">
+                        <label class="form-label d-block small fw-bold">Selecciona el archivo (JPG, PNG, WEBP)</label>
+                        <input type="file" name="product_image" class="form-control" accept="image/*" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="submit" class="btn btn-primary w-100">Subir Imagen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 function prepare_modal(id){
