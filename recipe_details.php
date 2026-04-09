@@ -1,73 +1,62 @@
 <?php
-   //Iniciar sesión y cargar dependencias
-    //Start session and load dependencies
+    // Iniciar sesión y cargar dependencias
     session_start();
     require_once 'functions.php';
     require_once 'db_erp.php';
-    //Seguridad restringir acceso a administradores u obrador.
-    //Security restrict access to administrartors or bakery staff only.
+
+    // Seguridad: restringir acceso a administradores u obrador.
     require_role(['admin','obrador']);
     
-    
-//Obtener el ID del producto final desde la URL
-//Get the final product ID from the URL
-$final_product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+    // Obtener el ID del producto final desde la URL
+    $final_product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
-if ($final_product_id <= 0) {
-    header("Location: products_management.php");
-    exit;
-}
-
-try {
-    // Obtener datos del producto principal
-    // Get main product data
-    $stmt = $pdo->prepare("SELECT * FROM products WHERE id = ? AND product_type = 'Final Product'");
-    $stmt->execute([$final_product_id]);
-    $main_product = $stmt->fetch();
-
-    if (!$main_product) {
-        die("Producto no encontrado o no es un producto final.");
+    if ($final_product_id <= 0) {
+        header("Location: products_management.php");
+        exit;
     }
 
-    // Obtener lista de ingredientes disponibles (Materia Prima)
-    // Get list of available ingredients (Raw Material)
-    $stmt_ing = $pdo->query("SELECT id, name, unit_of_measure FROM products WHERE product_type = 'Ingredient' ORDER BY name ASC");
-    $ingredients_options = $stmt_ing->fetchAll();
+    try {
+        // Obtener datos del producto principal
+        $stmt = $pdo->prepare("SELECT * FROM products WHERE id = ? AND product_type = 'Final Product'");
+        $stmt->execute([$final_product_id]);
+        $main_product = $stmt->fetch();
 
-    // Obtener los ingredientes actuales de la receta vinculando con la tabla products
-    // Get current recipe ingredients by joining with products table
-    $sql_recipe = "SELECT r.id as recipe_id, r.quantity_needed, p.name, p.unit_of_measure 
-                   FROM recipes r
-                   JOIN products p ON r.ingredient_id = p.id 
-                   WHERE r.final_product_id = ?
-                   ORDER BY p.name ASC";
-    $stmt_res = $pdo->prepare($sql_recipe);
-    $stmt_res->execute([$final_product_id]);
-    $current_recipe = $stmt_res->fetchAll();
+        if (!$main_product) {
+            die("Producto no encontrado o no es un producto final.");
+        }
 
-} catch (PDOException $ex) {
-    die("Error en la base de datos: " . $ex->getMessage());
-}
+        // Obtener lista de ingredientes disponibles (Materia Prima)
+        $stmt_ing = $pdo->query("SELECT id, name, unit_of_measure FROM products WHERE product_type = 'Ingredient' ORDER BY name ASC");
+        $ingredients_options = $stmt_ing->fetchAll();
 
-// Configurar mensajes de feedback
-// Set up feedback messages
-$msg_html = "";
-if (isset($_GET['msg'])) {
-    $text = ($_GET['msg'] == 'ok') ? "Operación realizada con éxito." : "Hubo un error en el proceso.";
-    $color = ($_GET['msg'] == 'ok') ? "alert-success" : "alert-danger";
-    $msg_html = "<div class='alert $color alert-dismissible fade show' role='alert'>
-                    $text
-                    <button type='button' class='btn-close' data-bs-dismiss='alert'></button>
-                 </div>";
-}
+        // Obtener los ingredientes actuales de la receta
+        $sql_recipe = "SELECT r.id as recipe_id, r.quantity_needed, p.name, p.unit_of_measure 
+                       FROM recipes r
+                       JOIN products p ON r.ingredient_id = p.id 
+                       WHERE r.final_product_id = ?
+                       ORDER BY p.name ASC";
+        $stmt_res = $pdo->prepare($sql_recipe);
+        $stmt_res->execute([$final_product_id]);
+        $current_recipe = $stmt_res->fetchAll();
+
+    } catch (PDOException $ex) {
+        die("Error en la base de datos: " . $ex->getMessage());
+    }
+
+    // Configurar mensajes de feedback
+    $msg_html = "";
+    if (isset($_GET['msg'])) {
+        $text = ($_GET['msg'] == 'ok') ? "Operación realizada con éxito." : "Hubo un error en el proceso.";
+        $color = ($_GET['msg'] == 'ok') ? "alert-success" : "alert-danger";
+        $msg_html = "<div class='alert $color alert-dismissible fade show' role='alert'>
+                        $text
+                        <button type='button' class='btn-close' data-bs-dismiss='alert'></button>
+                     </div>";
+    }
 ?>
 <!DOCTYPE html>
-<!--
-Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to edit this template
--->
-<html>
-    <head>
+<html lang="es">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Receta - <?= sanitize_input($main_product['name']) ?></title>
@@ -93,6 +82,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                 <div class="card-body">
                     <h5 class="fw-bold mb-3">Añadir Ingrediente</h5>
                     <form action="save_recipe_item.php" method="POST">
+                        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                         <input type="hidden" name="final_product_id" value="<?= $final_product_id ?>">
                         
                         <div class="mb-3">
@@ -141,6 +131,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                                         <td><span class="badge bg-light text-dark border"><?= $row['unit_of_measure'] ?></span></td>
                                         <td>
                                             <form action="save_recipe_item.php" method="POST" onsubmit="return confirm('¿Eliminar este ingrediente de la receta?');">
+                                                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                                                 <input type="hidden" name="recipe_id" value="<?= $row['recipe_id'] ?>">
                                                 <input type="hidden" name="final_product_id" value="<?= $final_product_id ?>">
                                                 <button type="submit" name="action" value="delete" class="btn btn-sm btn-outline-danger">Quitar</button>

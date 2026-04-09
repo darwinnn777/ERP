@@ -1,6 +1,8 @@
 <?php
-// Iniciar sesión y cargar dependencias
-// Start session and load dependencies
+/**
+ * Gestión de Stock e Inventario / Stock and Inventory Management
+ * ERP Bakery - 2026
+ */
 session_start();
 require_once 'functions.php';
 require_once 'db_erp.php';
@@ -35,17 +37,17 @@ try {
     $inventory = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
+    // Error de base de datos / Database error
     die("Error en la base de datos: " . $e->getMessage());
 }
 
-// Mensajes de feedback para el usuario
-// User feedback messages
+// Mensajes de feedback para el usuario / User feedback messages
 $msg_text = "";
 if (isset($_GET['msg'])) {
     switch ($_GET['msg']) {
-        case 'discount_ok': $msg_text = "Descuento del 50% aplicado correctamente."; break;
-        case 'no_change': $msg_text = "El descuento ya estaba aplicado o el producto no es válido."; break;
-        case 'error': $msg_text = "Error interno al procesar el descuento."; break;
+        case 'discount_ok': $msg_text = "Descuento del 50% aplicado correctamente / 50% discount applied."; break;
+        case 'no_change': $msg_text = "El descuento ya estaba aplicado / Discount already applied."; break;
+        case 'error': $msg_text = "Error al procesar el descuento / Error processing discount."; break;
     }
 }
 ?>
@@ -55,7 +57,7 @@ if (isset($_GET['msg'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock - ERP Panadería</title>
+    <title>Stock - ERP Bakery</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -64,10 +66,10 @@ if (isset($_GET['msg'])) {
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="text-bakery fw-bold">Control de Inventario</h2>
-            <p class="text-muted small">Visualización de lotes y caducidades</p>
+            <h2 class="text-bakery fw-bold">Control de Inventario / Inventory Control</h2>
+            <p class="text-muted small">Visualización de lotes y caducidades / Batches and expiration dates</p>
         </div>
-        <a href="dashboard.php" class="btn btn-outline-secondary btn-sm">Volver</a>
+        <a href="dashboard.php" class="btn btn-outline-secondary btn-sm">Volver / Back</a>
     </div>
 
     <?php if ($msg_text): ?>
@@ -81,12 +83,12 @@ if (isset($_GET['msg'])) {
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="bg-light">
-                    <tr class="small text-uppercase fw-bold text-secondary">
-                        <th class="px-4">Producto</th>
-                        <th>Almacén</th>
-                        <th class="text-center">Stock</th>
-                        <th class="text-center">Caducidad</th>
-                        <th class="text-end px-4">Estado / Acción</th>
+                    <tr class="small text-uppercase fw-bold text-secondary text-center">
+                        <th class="px-4 text-start">Producto / Product</th>
+                        <th>Almacén / Warehouse</th>
+                        <th>Stock</th>
+                        <th>Caducidad / Expiry</th>
+                        <th class="text-end px-4">Estado / Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -94,40 +96,43 @@ if (isset($_GET['msg'])) {
                         $days = $item['days_left'];
                         $is_final = ($item['product_type'] === 'Final Product');
                         
-                        // Lógica de color de fila (Semáforo)
-                        // Row color logic (Traffic Light)
+                        // Lógica de color de fila (Semáforo) / Row color logic (Traffic Light)
                         $bg_class = "";
                         if ($days !== null) {
                             if ($days < 0) $bg_class = "table-danger opacity-75"; 
                             elseif ($days <= 3) $bg_class = "table-warning";
                         }
                     ?>
-                    <tr class="<?= $bg_class ?>">
-                        <td class="px-4">
+                    <tr class="<?= $bg_class ?> text-center">
+                        <td class="px-4 text-start">
                             <div class="fw-bold"><?= sanitize_input($item['product_name']) ?></div>
                             <div class="text-muted small">Lote: <?= sanitize_input($item['lot_number']) ?></div>
                         </td>
                         <td><?= sanitize_input($item['warehouse_name']) ?></td>
-                        <td class="text-center">
+                        <td>
                             <span class="fw-bold"><?= $item['quantity'] ?></span>
                             <small class="text-muted"><?= $item['unit_of_measure'] ?></small>
                         </td>
-                        <td class="text-center">
+                        <td>
                             <?= $item['expiration_date'] ? date('d/m/Y', strtotime($item['expiration_date'])) : '--' ?>
                         </td>
                         <td class="text-end px-4">
                             <?php 
-                            // Mostrar estado de caducidad
+                            // Mostrar estado de caducidad / Show expiration status
                             if ($days === null) echo "<span class='text-muted small'>Perenne</span>";
-                            elseif ($days < 0) echo "<span class='text-danger fw-bold small'>CADUCADO</span>";
+                            elseif ($days < 0) echo "<span class='text-danger fw-bold small'>CADUCADO / EXPIRED</span>";
                             else echo "<span class='badge bg-white text-dark border'>$days días</span>";
                             ?>
 
-                            <?php if (has_role('admin') && $is_final && $days !== null && $days <= 3 && $days >= 0): ?>
+                            <?php 
+                            // Acción: Aplicar descuento (Solo Admin y productos finales pronto a caducar)
+                            // Action: Apply discount (Admin only and final products near expiry)
+                            if (has_role('admin') && $is_final && $days !== null && $days <= 3 && $days >= 0): ?>
                                 <?php if ($item['is_discounted']): ?>
-                                    <span class="ms-2 badge border border-danger text-danger">Descuento Aplicado</span>
+                                    <span class="ms-2 badge border border-danger text-danger">-%50 OK</span>
                                 <?php else: ?>
                                     <form action="apply_discount.php" method="POST" class="d-inline ms-2">
+                                        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                                         <input type="hidden" name="product_id" value="<?= $item['product_id'] ?>">
                                         <button type="submit" class="btn btn-sm btn-danger py-0 px-2 fw-bold" style="font-size: 0.75rem;">
                                             -50%

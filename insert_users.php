@@ -7,15 +7,20 @@ session_start();
 require_once 'db_erp.php'; 
 require_once 'functions.php';
 
-//SEGURIDAD Y RESTRICCIÓN
-// Usamos require_role que ya creamos en functions.php para centralizar la seguridad
+// SEGURIDAD Y RESTRICCIÓN
+// Solo administradores pueden crear nuevos usuarios
 require_role('admin');
-$errors=[];
-//PROCESAR EL FORMULARIO (POST)
+
+$errors = [];
+
+// PROCESAR EL FORMULARIO (POST)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
+    // VALIDACIÓN CSRF: Fundamental para evitar inserciones maliciosas externas
+    csrf_check($_POST['csrf_token'] ?? '');
+    
     // Captura y limpieza de datos
-    // mb_strtoupper para consistencia en la base de datos
+    // mb_strtoupper para consistencia en la base de datos (nombres en mayúsculas)
     $user = mb_strtoupper(trim($_POST['user'] ?? ''));
     $full_name = mb_strtoupper(trim($_POST['full_name'] ?? ''));
     $pass = trim($_POST['password'] ?? '');
@@ -32,38 +37,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($pass !== $pass2) {
         $errors[] = "Las contraseñas no coinciden.";
     }
-    //Si hay errores volvemos a users_management.php
-    //If there are errors we return to users_management.php
+
+    // Si hay errores volvemos a la gestión de usuarios y los mostramos
     if (!empty($errors)) {
         $_SESSION['registry_errors'] = $errors;
         header("Location: users_management.php");
         exit;
     }
-    //Hash de la contraseña
+
+    // Hash de la contraseña: Nunca guardamos texto plano
     $pass_hashed = password_hash($pass, PASSWORD_DEFAULT);
     
     try {
-        //INSERCIÓN EN POSTGRESQL
+        // INSERCIÓN EN LA BASE DE DATOS
         $sql = "INSERT INTO users (username, full_name, password_hash, role_id) VALUES (?, ?, ?, ?)";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$user, $full_name, $pass_hashed, $rol_id]);
         
-        // ÉXITO: Redirigimos a la tabla con mensaje de éxito
+        // ÉXITO: Redirigimos con mensaje de confirmación
         header("Location: users_management.php?msg=success");
         exit;
 
     } catch (PDOException $ex) {
-        // Manejo de duplicados (PostgreSQL: 23505) EJ: nombre de usuario duplicado.
-        if($ex->getCode() == '23505' || $ex->getCode() == '23000'){
+        // Manejo de duplicados (PostgreSQL: 23505)
+        // Ejemplo: el nombre de usuario ya existe en el sistema
+        if($ex->getCode() == '23505'){
             header("Location: users_management.php?msg=error_exists");
         } else {
-            // Error técnico 
+            // Error técnico genérico
             header("Location: users_management.php?msg=error_tech");
         }
         exit;
     }
 } else {
-    // Si alguien intenta entrar a este archivo por URL sin enviar datos, lo echamos
+    // Si se accede directamente por URL sin POST, redirigir
     header('Location: users_management.php');
     exit;
 }

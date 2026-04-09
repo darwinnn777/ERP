@@ -10,6 +10,9 @@ require_once 'db_erp.php';
 require_role(['admin']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    //VERIFY CSRF
+    csrf_check($_POST['csrf_token'] ?? '');
+    
     // Obtener y castear el ID del producto
     // Get and cast product ID
     $product_id = (int)($_POST['product_id'] ?? 0);
