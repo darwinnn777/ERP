@@ -21,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'upload_image' && $product_id > 0) {
         $directory = "img_products/";
 
-        // Crear directorio si no existe
         if (!is_dir($directory)) {
             mkdir($directory, 0777, true);
         }
@@ -37,7 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
 
-            // Nombre único para evitar sobrescribir archivos
             $path = $directory . uniqid('prod_') . "." . $extension;
 
             if (move_uploaded_file($tmp_name, $path)) {
@@ -56,7 +54,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // ELIMINAR PRODUCTO
-    // DELETE PRODUCT
     if ($action === 'delete_product' && $product_id > 0) {
         try {
             $sql = "DELETE FROM products WHERE id = :id";
@@ -67,18 +64,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header("Location: products_management.php?msg=error_deleted");
             }
         } catch (PDOException $ex) {
-            // Error de integridad (producto referenciado en recetas o stock)
             header("Location: products_management.php?msg=error_in_use");
         }
         exit;
     }
 
-    //REGISTRAR O EDITAR PRODUCTO 
-    //REGISTRY OR EDIT PRODUCT
+    // REGISTRAR O EDITAR PRODUCTO 
     $sku = strtoupper(trim($_POST['sku'] ?? ''));
     $name = trim($_POST['name'] ?? '');
     $type = $_POST['type'] ?? 'Ingredient';
     $unit = $_POST['unit'] ?? '';
+    
+    // NUENO: CAPTURAMOS LOS PRECIOS
+    $price_sell = (float)($_POST['price_sell'] ?? 0);
+    $price_buy = (float)($_POST['price_buy'] ?? 0);
 
     if (empty($sku) || empty($name) || empty($unit)) {
         header("Location: products_management.php?msg=empty_fields");
@@ -86,29 +85,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        // EDITAR , si el id es mayor que cero ya existe
         if ($product_id > 0) {
-            
-            $sql = "UPDATE products SET sku = ?, name = ?, product_type = ?, unit_of_measure = ? WHERE id = ?";
+            // EDITAR: Actualizamos con los nuevos precios
+            $sql = "UPDATE products SET sku = ?, name = ?, product_type = ?, unit_of_measure = ?, price_sell = ?, price_buy = ? WHERE id = ?";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([$sku, $name, $type, $unit, $product_id]);
+            $stmt->execute([$sku, $name, $type, $unit, $price_sell, $price_buy, $product_id]);
         } else {
-            // INSERTAR NUEVO
-            // Inicializamos precios en 0 para evitar errores de tipo si la columna no permite NULL
+            // INSERTAR NUEVO: Guardamos los precios reales en lugar de 0, 0
             $sql = "INSERT INTO products (sku, name, product_type, unit_of_measure, price_sell, price_buy) 
-                    VALUES (?, ?, ?, ?, 0, 0)";
+                    VALUES (?, ?, ?, ?, ?, ?)";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([$sku, $name, $type, $unit]);
+            $stmt->execute([$sku, $name, $type, $unit, $price_sell, $price_buy]);
         }
         header("Location: products_management.php?msg=ok");
     } catch (PDOException $ex) {
-        // Posible error de SKU duplicado
         header("Location: products_management.php?msg=error_db");
     }
     exit;
 
 } else {
-    // Si no es POST, redirigir al catálogo
     header("Location: products_management.php");
     exit;
 }
