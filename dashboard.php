@@ -47,9 +47,12 @@ try {
      style="background-color: var(--color-bakery);">
     <div class="container">
  
-        <!-- Logo / nombre de la app -->
-        <a class="navbar-brand fw-bold" href="#">
-            <i class="bi bi-basket2-fill me-2"></i> ERP Bakery
+        <!-- Logo: la imagen está en la carpeta img/ del proyecto -->
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="#">
+            <img src="img_products/logoB.png"
+                 alt="Logo ERP Bakery"
+                 class="navbar-logo">
+            ERP Bakery
         </a>
  
         <!-- Info del usuario a la derecha -->
