@@ -40,7 +40,7 @@ try {
 
 <nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background-color: var(--color-bakery);">
   <div class="container">
-    <a class="navbar-brand fw-bold" href="#">🍞 ERP BAKERY</a>
+    <a class="navbar-brand fw-bold" href="#">imagen-logo ERP BAKERY</a>
     
     <div class="d-flex align-items-center text-white">
         <span class="me-3">
@@ -71,7 +71,7 @@ try {
     <?php if(($rol_actual == 'admin' || $rol_actual == 'obrador') && $alertas_stock > 0): ?>
         <div class="alert alert-warning border-0 shadow-sm d-flex justify-content-between align-items-center rounded-4">
             <span>
-                ⚠️ <strong>Atención:</strong> Hay <?= $alertas_stock ?> lotes con stock bajo en el almacén.
+                imagen-logo ️ <strong>Atención:</strong> Hay <?= $alertas_stock ?> lotes con stock bajo en el almacén.
             </span>
             <a href="stock.php" class="btn btn-sm btn-warning fw-bold text-uppercase rounded-pill">Revisar</a>
         </div>
@@ -83,7 +83,7 @@ try {
         <div class="col-md-4">
             <div class="card h-100 shadow-sm border-0 rounded-4">
                 <div class="card-body p-4">
-                    <h1 class="mb-3">📦</h1>
+                    <h1 class="mb-3">imagen-logo </h1>
                     <h4 class="fw-bold">Gestión de Stock</h4>
                     <p class="card-text text-muted small">Control de lotes, almacenes y fechas de caducidad.</p>
                     <a href="stock.php" class="btn btn-bakery w-100 rounded-pill fw-bold">Entrar a Stock</a>
@@ -94,7 +94,7 @@ try {
         <div class="col-md-4">
             <div class="card h-100 shadow-sm border-0 rounded-4">
                 <div class="card-body p-4">
-                    <h1 class="mb-3">🥐</h1>
+                    <h1 class="mb-3">imagen-logo </h1>
                     <h4 class="fw-bold">Catálogo y Recetas</h4>
                     <p class="card-text text-muted small">Administración de productos, ingredientes y fórmulas.</p>
                     <a href="products_management.php" class="btn btn-bakery w-100 rounded-pill fw-bold">Entrar a Catálogo</a>
@@ -107,7 +107,7 @@ try {
         <div class="col-md-4">
             <div class="card h-100 shadow-sm border-0 rounded-4 border-bakery">
                 <div class="card-body p-4">
-                    <h1 class="mb-3">🛒</h1>
+                    <h1 class="mb-3">imagen-logo </h1>
                     <h4 class="fw-bold">Punto de Venta (TPV)</h4>
                     <p class="card-text text-muted small">Atender clientes, caja registradora y ventas en tiempo real.</p>
                     <a href="ventas.php" class="btn btn-success w-100 rounded-pill fw-bold">Abrir Caja (Vender)</a>
@@ -120,7 +120,7 @@ try {
         <div class="col-md-4">
             <div class="card h-100 shadow-sm border-0 rounded-4"> 
                 <div class="card-body p-4">
-                    <h1 class="mb-3">👥</h1>
+                    <h1 class="mb-3">imagen-logo </h1>
                     <h4 class="fw-bold">Empleados</h4>
                     <p class="card-text text-muted small">Control de acceso, alta de usuarios y roles del sistema.</p>
                     <a href="users_management.php" class="btn btn-dark w-100 rounded-pill fw-bold">Gestionar Usuarios</a>
@@ -131,7 +131,7 @@ try {
         <div class="col-md-4">
             <div class="card h-100 shadow-sm border-0 rounded-4"> 
                 <div class="card-body p-4">
-                    <h1 class="mb-3">🚚</h1>
+                    <h1 class="mb-3">imagen-logo </h1>
                     <h4 class="fw-bold">Órdenes de Compra</h4>
                     <p class="card-text text-muted small">Pedir suministros a proveedores y recibir mercancía.</p>
                     <a href="purchase_orders.php" class="btn btn-outline-secondary w-100 rounded-pill fw-bold">Ver Pedidos</a>
