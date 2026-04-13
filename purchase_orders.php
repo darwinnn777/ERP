@@ -1,16 +1,19 @@
 <?php
+session_start();
 /**
- * Gestión de Órdenes de Compra / Purchase Order Management
+ * Gestión de Órdenes de Compra - ERP Bakery
+ * Purchase Order Management
  * ERP Bakery - 2026
  */
-session_start();
 require_once 'functions.php';
 require_once 'db_erp.php';
 
-// SEGURIDAD: Solo administradores
+// SEGURIDAD: Solo los jefes pueden entrar aquí
+// SECURITY: Admin access only
 require_role(['admin']);
 
-// --- LÓGICA DE MENSAJES DE FEEDBACK / FEEDBACK MESSAGES LOGIC ---
+// LÓGICA DE MENSAJES DE FEEDBACK
+// FEEDBACK MESSAGES LOGIC
 $msg_text = "";
 $msg_type = "info";
 
@@ -22,27 +25,17 @@ if (isset($_GET['msg'])) {
             break;
         }
         case 'received_ok': {
-            $msg_text = "¡Éxito! La mercancía ha sido integrada en el stock con su lote correspondiente.";
+            $msg_text = "¡Éxito! La mercancía ha sido integrada en el stock con su lote.";
             $msg_type = "success";
             break;
         }
-        case 'already_received': {
-            $msg_text = "Esta orden ya ha sido procesada o no tiene productos pendientes.";
-            $msg_type = "warning";
-            break;
-        }
-        case 'not_found': {
-            $msg_text = "La orden solicitada no existe en el sistema.";
+        case 'invalid_token': {
+            $msg_text = "Error de seguridad: El salvoconducto (token) no es válido.";
             $msg_type = "danger";
             break;
         }
-        case 'invalid_data': {
-            $msg_text = "Error: Los datos del formulario son incorrectos o incompletos.";
-            $msg_type = "warning";
-            break;
-        }
         case 'error': {
-            $msg_text = "Hubo un error crítico en el servidor. Revise el log del sistema.";
+            $msg_text = "Hubo un error crítico en el servidor. Revisa el log.";
             $msg_type = "danger";
             break;
         }
@@ -54,11 +47,13 @@ if (isset($_GET['msg'])) {
     }
 }
 
-// FETCH DATA / Traer datos para la vista
+// FETCH DATA 
+// Pillar los datos para la vista
 $stmt = $pdo->query("SELECT * FROM purchase_orders ORDER BY id DESC");
 $orders = $stmt->fetchAll();
 
-$stmt_products = $pdo->query("SELECT id, name FROM products ORDER BY name ASC");
+// Traer la lista de productos con su precio de compra real (price_buy)
+$stmt_products = $pdo->query("SELECT id, name, price_buy FROM products ORDER BY name ASC");
 $products_list = $stmt_products->fetchAll();
 ?>
 
@@ -88,12 +83,12 @@ $products_list = $stmt_products->fetchAll();
         </div>
     </div>
 
-    <?php if ($msg_text): ?>
+    <?php if ($msg_text) { ?>
         <div class="alert alert-<?= $msg_type ?> alert-dismissible fade show shadow-sm rounded-4 border-0" role="alert">
             <i class="bi bi-info-circle-fill me-2"></i> <?= $msg_text ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-    <?php endif; ?>
+    <?php } ?>
 
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
         <div class="table-responsive">
@@ -103,42 +98,42 @@ $products_list = $stmt_products->fetchAll();
                         <th class="ps-4 py-3">ID</th>
                         <th>Proveedor</th>
                         <th>Fecha de Pedido</th>
-                        <th>Total Amount</th>
+                        <th>Total</th>
                         <th class="text-center">Estado</th>
                         <th class="text-end pe-4">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (empty($orders)): ?>
+                    <?php if (empty($orders)) { ?>
                         <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">No hay órdenes registradas.</td>
+                            <td colspan="6" class="text-center py-5 text-muted">No hay órdenes registradas todavía.</td>
                         </tr>
-                    <?php endif; ?>
+                    <?php } ?>
 
-                    <?php foreach ($orders as $o): ?>
+                    <?php foreach ($orders as $o) { ?>
                     <tr>
                         <td class="ps-4 fw-bold text-bakery">#<?= $o['id'] ?></td>
                         <td><?= sanitize_input($o['provider_name']) ?></td>
                         <td class="small text-muted"><?= date('d/m/Y H:i', strtotime($o['order_date'])) ?></td>
                         <td class="fw-bold"><?= number_format($o['total_amount'], 2) ?> €</td>
                         <td class="text-center">
-                            <?php if ($o['status'] === 'Pendiente'): ?>
+                            <?php if ($o['status'] === 'Pendiente') { ?>
                                 <span class="badge bg-warning text-dark rounded-pill px-3">Pendiente</span>
-                            <?php else: ?>
+                            <?php } else { ?>
                                 <span class="badge bg-success rounded-pill px-3">Recibido</span>
-                            <?php endif; ?>
+                            <?php } ?>
                         </td>
                         <td class="text-end pe-4">
-                            <?php if ($o['status'] === 'Pendiente'): ?>
+                            <?php if ($o['status'] === 'Pendiente') { ?>
                                 <a href="receive_order.php?id=<?= $o['id'] ?>" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold">
-                                    Visto Bueno
+                                    Recibir Mercancía
                                 </a>
-                            <?php else: ?>
+                            <?php } else { ?>
                                 <button class="btn btn-sm btn-light rounded-pill px-3 border disabled">Completada</button>
-                            <?php endif; ?>
+                            <?php } ?>
                         </td>
                     </tr>
-                    <?php endforeach; ?>
+                    <?php } ?>
                 </tbody>
             </table>
         </div>
@@ -148,26 +143,28 @@ $products_list = $stmt_products->fetchAll();
 <div class="modal fade" id="newOrderModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow rounded-4">
-            <form action="process_new_po.php" method="POST">
+            <form action="create_purchase_order.php" method="POST">
                 <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                 
                 <div class="modal-header border-0 pt-4 px-4">
-                    <h5 class="fw-bold text-bakery"> Nueva Orden de Compra</h5>
+                    <h5 class="fw-bold text-bakery">Nueva Orden de Compra</h5>
                 </div>
 
                 <div class="modal-body px-4">
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted text-uppercase">Nombre del Proveedor</label>
-                        <input type="text" name="provider" class="form-control rounded-3" placeholder="Ej: Distribuidora Central" required>
+                        <input type="text" name="provider" class="form-control rounded-3" placeholder="Ej: Harinas García S.L." required>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-muted text-uppercase">Producto</label>
-                        <select name="product_id" class="form-select rounded-3" required>
-                            <option value="">-- Seleccionar --</option>
-                            <?php foreach($products_list as $prod): ?>
-                                <option value="<?= $prod['id'] ?>"><?= sanitize_input($prod['name']) ?></option>
-                            <?php endforeach; ?>
+                        <label class="form-label small fw-bold text-muted text-uppercase">Producto del Catálogo</label>
+                        <select name="product_id" id="prod_select" class="form-select rounded-3" required onchange="updatePrice()">
+                            <option value="">-- Seleccionar producto --</option>
+                            <?php foreach($products_list as $prod) { ?>
+                                <option value="<?= $prod['id'] ?>" data-price="<?= $prod['price_buy'] ?>">
+                                    <?= sanitize_input($prod['name']) ?>
+                                </option>
+                            <?php } ?>
                         </select>
                     </div>
 
@@ -197,6 +194,22 @@ $products_list = $stmt_products->fetchAll();
 </div>
 
 <script>
+/**
+ * Actualizar el precio automáticamente al elegir producto / Auto-fill price
+ */
+function updatePrice() {
+    const select = document.getElementById('prod_select');
+    const selectedOption = select.options[select.selectedIndex];
+    const price = selectedOption.getAttribute('data-price') || 0;
+    
+    // Rellenamos el input con el precio del catálogo
+    document.getElementById('ipri').value = price;
+    re(); // Recalcular el total
+}
+
+/**
+ * Calcular el total sobre la marcha / Real-time calculation
+ */
 function re() {
     const q = document.getElementById('iqty').value || 0;
     const p = document.getElementById('ipri').value || 0;

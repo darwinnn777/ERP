@@ -1,11 +1,10 @@
 <?php
-/**
- * Procesador de Recepción de Stock y Trazabilidad
- * Stock Receipt Processor with Traceability
- * ERP Bakery - 2026
- */
-
 session_start();
+/*
+ Procesador de Recepción de Stock y Trazabilidad
+ Stock Receipt Processor with Traceability
+ ERP Bakery - 2026
+ */
 require_once 'functions.php';
 require_once 'db_erp.php';
 
