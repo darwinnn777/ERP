@@ -1,7 +1,7 @@
 <?php
 // Requerir la conexión a la base de datos de la nube
 // Require the cloud database connection
-require_once 'db_erp.php'; 
+require_once '../config/db_erp.php'; 
 
 try {
     // 1. Define los usuarios que quieres crear

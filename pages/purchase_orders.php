@@ -5,8 +5,8 @@ session_start();
  * Purchase Order Management
  * ERP Bakery - 2026
  */
-require_once 'functions.php';
-require_once 'db_erp.php';
+require_once '../config/db_erp.php';
+require_once '../config/functions.php';
 
 // SEGURIDAD: Solo los jefes pueden entrar aquí
 // SECURITY: Admin access only
@@ -64,9 +64,9 @@ $products_list = $stmt_products->fetchAll();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Órdenes de Compra - ERP Bakery</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
 </head>
-<body class="bg-light p-4">
+<body class="bg-light p-4"> 
 
 <div class="container">
     
@@ -143,7 +143,7 @@ $products_list = $stmt_products->fetchAll();
 <div class="modal fade" id="newOrderModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow rounded-4">
-            <form action="create_purchase_order.php" method="POST">
+            <form action="../actions/create_purchase_order.php" method="POST">
                 <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                 
                 <div class="modal-header border-0 pt-4 px-4">

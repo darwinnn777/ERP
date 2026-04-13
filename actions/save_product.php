@@ -3,8 +3,8 @@
  * Controlador para guardar productos y subir imágenes - ERP Bakery
  */
 session_start();
-require_once 'db_erp.php';
-require_once 'functions.php';
+require_once '../config/db_erp.php';
+require_once '../config/functions.php';
 
 // Seguridad: Solo admin y obrador pueden manipular el catálogo
 require_role(['admin', 'obrador']);
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $allowed_extensions = ['jpg', 'jpeg', 'png', 'webp'];
 
             if (!in_array($extension, $allowed_extensions)) {
-                header("Location: products_management.php?msg=invalid_format");
+                header("Location: ../pages/products_management.php?msg=invalid_format");
                 exit;
             }
 
@@ -42,12 +42,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $sql = "UPDATE products SET image_url = :image_url WHERE id = :id";
                 $stmt = $pdo->prepare($sql);
                 if ($stmt->execute([':image_url' => $path, ':id' => $product_id])) {
-                    header("Location: products_management.php?msg=success");
+                    header("Location: ../pages/products_management.php?msg=success");
                 } else {
-                    header("Location: products_management.php?msg=error_db");
+                    header("Location: ../pages/products_management.php?msg=error_db");
                 }
             } else {
-                header("Location: products_management.php?msg=error_upload");
+                header("Location: ../pages/products_management.php?msg=error_upload");
             }
         }
         exit;
@@ -59,12 +59,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $sql = "DELETE FROM products WHERE id = :id";
             $stmt = $pdo->prepare($sql);
             if ($stmt->execute([':id' => $product_id])) {
-                header("Location: products_management.php?msg=deleted");
+                header("Location: ../pages/products_management.php?msg=deleted");
             } else {
-                header("Location: products_management.php?msg=error_deleted");
+                header("Location: ../pages/products_management.php?msg=error_deleted");
             }
         } catch (PDOException $ex) {
-            header("Location: products_management.php?msg=error_in_use");
+            header("Location: ../pages/products_management.php?msg=error_in_use");
         }
         exit;
     }
@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $price_buy = (float)($_POST['price_buy'] ?? 0);
 
     if (empty($sku) || empty($name) || empty($unit)) {
-        header("Location: products_management.php?msg=empty_fields");
+        header("Location: ../pages/products_management.php?msg=empty_fields");
         exit;
     }
 
@@ -97,13 +97,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare($sql);
             $stmt->execute([$sku, $name, $type, $unit, $price_sell, $price_buy]);
         }
-        header("Location: products_management.php?msg=ok");
+        header("Location: ../pages/products_management.php?msg=ok");
     } catch (PDOException $ex) {
-        header("Location: products_management.php?msg=error_db");
+        header("Location: ../pages/products_management.php?msg=error_db");
     }
     exit;
 
 } else {
-    header("Location: products_management.php");
+    header("Location: ../pages/products_management.php");
     exit;
 }

@@ -5,8 +5,8 @@
  * ERP Bakery - 2026
  */
 session_start();
-require_once 'functions.php';
-require_once 'db_erp.php';
+require_once '../config/db_erp.php';
+require_once '../config/functions.php';
 
 // SEGURIDAD: Restringir el acceso solo a administradores
 require_role('admin');
@@ -112,7 +112,7 @@ if (isset($_SESSION['registry_errors'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Usuarios - ERP Bakery</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body class="flex-column align-items-stretch p-4 bg-light">
 
@@ -205,7 +205,7 @@ if (isset($_SESSION['registry_errors'])) {
 <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow rounded-4">
-            <form action="insert_users.php" method="POST">
+            <form action="../database/insert_users.php" method="POST">
                 <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                 <div class="modal-header border-0 pt-4 px-4">
                     <h5 class="fw-bold text-bakery">Dar de Alta Empleado</h5>

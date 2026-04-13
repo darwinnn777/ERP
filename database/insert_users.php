@@ -4,8 +4,8 @@
  * User Insertion Processor - ERP Bakery
  */
 session_start();
-require_once 'db_erp.php'; 
-require_once 'functions.php';
+require_once '../config/db_erp.php';
+require_once '../config/functions.php';
 
 // SEGURIDAD Y RESTRICCIÓN
 // Solo administradores pueden crear nuevos usuarios
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Si hay errores volvemos a la gestión de usuarios y los mostramos
     if (!empty($errors)) {
         $_SESSION['registry_errors'] = $errors;
-        header("Location: users_management.php");
+        header("Location: ../pages/users_management.php");
         exit;
     }
 
@@ -55,22 +55,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$user, $full_name, $pass_hashed, $rol_id]);
         
         // ÉXITO: Redirigimos con mensaje de confirmación
-        header("Location: users_management.php?msg=success");
+        header("Location: ../pages/users_management.php?msg=success");
         exit;
 
     } catch (PDOException $ex) {
         // Manejo de duplicados (PostgreSQL: 23505)
         // Ejemplo: el nombre de usuario ya existe en el sistema
         if($ex->getCode() == '23505'){
-            header("Location: users_management.php?msg=error_exists");
+            header("Location: ../pages/users_management.php?msg=error_exists");
         } else {
             // Error técnico genérico
-            header("Location: users_management.php?msg=error_tech");
+            header("Location: ../pages/users_management.php?msg=error_tech");
         }
         exit;
     }
 } else {
     // Si se accede directamente por URL sin POST, redirigir
-    header('Location: users_management.php');
+    header('Location: ../pages/users_management.php');
     exit;
 }

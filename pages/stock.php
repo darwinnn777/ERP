@@ -4,9 +4,8 @@
  * ERP Bakery - 2026
  */
 session_start();
-require_once 'functions.php';
-require_once 'db_erp.php';
-
+require_once '../config/db_erp.php';
+require_once '../config/functions.php';
 // SEGURIDAD: Acceso para Admin, Obrador o Dependiente
 // SECURITY: Access for Admin, Bakery or Shop staff
 require_role(['admin', 'obrador', 'dependiente']);
@@ -59,7 +58,7 @@ if (isset($_GET['msg'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock - ERP Bakery</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body class="admin-layout">
 
@@ -131,7 +130,7 @@ if (isset($_GET['msg'])) {
                                 <?php if ($item['is_discounted']): ?>
                                     <span class="ms-2 badge border border-danger text-danger">-%50 OK</span>
                                 <?php else: ?>
-                                    <form action="apply_discount.php" method="POST" class="d-inline ms-2">
+                                    <form action="../actions/apply_discount.php" method="POST" class="d-inline ms-2">
                                         <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                                         <input type="hidden" name="product_id" value="<?= $item['product_id'] ?>">
                                         <button type="submit" class="btn btn-sm btn-danger py-0 px-2 fw-bold" style="font-size: 0.75rem;">

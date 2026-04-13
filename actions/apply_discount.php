@@ -2,8 +2,8 @@
 // Iniciar sesión y cargar configuración
 // Start session and load configuration
 session_start();
-require_once 'functions.php';
-require_once 'db_erp.php';
+require_once '../config/functions.php';
+require_once '../config/db_erp.php';
 
 // SEGURIDAD-Solo administradores pueden aplicar descuentos
 // SECURITY-Only administrators can apply discounts
@@ -34,14 +34,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Verificar si hubo cambios para dar feedback preciso
             // Check if any row was affected to provide precise feedback
             if ($stmt->rowCount() > 0) {
-                header("Location: stock.php?msg=discount_ok");
+                header("Location: ../pages/stock.php?msg=discount_ok");
             } else {
-                header("Location: stock.php?msg=no_change");
+                header("Location: ../pages/stock.php?msg=no_change");
             }
             exit;
 
         } catch (PDOException $e) {
-            header("Location: stock.php?msg=error");
+            header("Location: ../pages/stock.php?msg=error");
             exit;
         }
     }
@@ -49,5 +49,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Redirección de seguridad si se accede directamente
 // Security redirect if accessed directly
-header("Location: stock.php");
+header("Location: ../pages/stock.php");
 exit;

@@ -5,8 +5,8 @@ session_start();
  Stock Receipt Processor with Traceability
  ERP Bakery - 2026
  */
-require_once 'functions.php';
-require_once 'db_erp.php';
+require_once '../config/functions.php';
+require_once '../config/db_erp.php';
 
 // SEGURIDAD: Solo administradores
 // SECURITY: Only admin users allowed
@@ -24,7 +24,7 @@ $items = $_POST['items'] ?? [];
 // Validación básica
 // Basic validation
 if ($po_id <= 0 || empty($items)) {
-    header("Location: purchase_orders.php?msg=invalid_data");
+    header("Location: ../pages/purchase_orders.php?msg=invalid_data");
     exit;
 }
 
@@ -102,7 +102,7 @@ try {
 
     // Si todo ha ido bien, guardamos cambios permanentemente
     $pdo->commit();
-    header("Location: purchase_orders.php?msg=received_ok");
+    header("Location: ../pages/purchase_orders.php?msg=received_ok");
     exit;
 
 } catch (Exception $e) {
@@ -113,6 +113,6 @@ try {
     }
 
     error_log("ERROR RECEPCION: " . $e->getMessage());
-    header("Location: purchase_orders.php?msg=error");
+    header("Location: ../pages/purchase_orders.php?msg=error");
     exit;
 }

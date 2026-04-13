@@ -5,7 +5,8 @@ session_start();
 
 // Requerir la conexión a la base de datos
 // Require the database connection
-require_once 'db_erp.php'; 
+require_once '../config/db_erp.php';
+
 
 $errors = ""; 
 
@@ -78,7 +79,7 @@ try {
     <title>Login - ERP Bakery</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
 

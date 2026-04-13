@@ -5,8 +5,8 @@ session_start();
  * Product Catalog Management
  * ERP Bakery - 2026
  */
-require_once 'functions.php';
-require_once 'db_erp.php';
+require_once '../config/db_erp.php';
+require_once '../config/functions.php';
 
 // SEGURIDAD: Solo administradores y personal de obrador
 // SECURITY: Restricted access
@@ -58,7 +58,7 @@ if (isset($_GET['msg'])) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gestión de Catálogo - ERP Bakery</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body class="admin-layout bg-light">
 
@@ -73,7 +73,7 @@ if (isset($_GET['msg'])) {
     <div class="card card-login mb-4 border-0 shadow-sm rounded-4">
         <div class="card-body">
             <h5 class="mb-3 fw-bold">Registrar Nuevo Producto</h5>
-            <form action="save_product.php" method="POST" class="row g-2">
+            <form action="../actions/save_product.php" method="POST" class="row g-2">
                 <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                 
                 <div class="col-md-2">
@@ -156,7 +156,7 @@ if (isset($_GET['msg'])) {
                         <td class="text-muted small"><?= sanitize_input($p['sku']) ?></td>
                         <td>
                             <?php if (!empty($p['image_url'])): ?>
-                                <img src="<?= sanitize_input($p['image_url']) ?>" width="40" height="40" class="rounded shadow-sm" style="object-fit: cover;">
+                                <img src="../<?= sanitize_input($p['image_url']) ?>" width="40" height="40" class="rounded shadow-sm" style="object-fit: cover;">
                             <?php else: ?>
                                 <button type="button" class="btn btn-sm btn-outline-primary rounded-circle" onclick="prepare_modal('<?= $safe_id ?>')" data-bs-toggle="modal" data-bs-target="#imageModal" style="width:32px; height:32px; padding:0;">+</button>
                             <?php endif; ?>
@@ -197,7 +197,7 @@ if (isset($_GET['msg'])) {
                                     Editar
                                 </button>
                                     
-                                <form action="save_product.php" method="POST" style="display:inline;" onsubmit="return confirm('¿Borrar <?= htmlspecialchars($p['name'], ENT_QUOTES) ?>?');">
+                                <form action="../actions/save_product.php" method="POST" style="display:inline;" onsubmit="return confirm('¿Borrar <?= htmlspecialchars($p['name'], ENT_QUOTES) ?>?');">
                                     <input type="hidden" name="id" value="<?= $safe_id ?>">
                                     <input type="hidden" name="action" value="delete_product">
                                     <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
@@ -223,7 +223,7 @@ if (isset($_GET['msg'])) {
                 <h5 class="modal-title fw-bold">Editar Producto</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="save_product.php" method="POST">
+            <form action="../actions/save_product.php" method="POST">
                 <div class="modal-body p-4">
                     <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                     <input type="hidden" name="id" id="edit_id">
@@ -286,7 +286,7 @@ if (isset($_GET['msg'])) {
                 <h5 class="modal-title fw-bold">Actualizar Imagen</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="save_product.php" method="POST" enctype="multipart/form-data">
+            <form action="../actions/save_product.php" method="POST" enctype="multipart/form-data">
                 <div class="modal-body p-4 text-center">
                     <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                     <input type="hidden" name="action" value="upload_image">

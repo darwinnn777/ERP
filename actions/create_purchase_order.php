@@ -6,8 +6,8 @@ session_start();
  */
 
 session_start();
-require_once 'functions.php';
-require_once 'db_erp.php';
+require_once '../config/db_erp.php';
+require_once '../config/functions.php';
 
 // Limitar el paso solo a los jefes 
 // Restrict access to admins only
@@ -27,7 +27,7 @@ $precio    = (float)($_POST['price_unit'] ?? 0);
 // Comprobar que no falte nada importante 
 // Validate mandatory fields
 if (!$proveedor || $id_prod <= 0 || $cantidad <= 0) {
-    header("Location: purchase_orders.php?msg=invalid_data");
+    header("Location: ../pages/purchase_orders.php?msg=invalid_data");
     exit;
 }
 
@@ -62,7 +62,7 @@ try {
 
     // Mandar al usuario de vuelta con el mensaje de éxito 
     // Redirect with success message
-    header("Location: purchase_orders.php?msg=po_created");
+    header("Location: ../pages/purchase_orders.php?msg=po_created");
     exit;
 
 } catch (Exception $e) {
@@ -78,6 +78,6 @@ try {
     
     // Escapar al listado con aviso de error 
     // Redirect with error status
-    header("Location: purchase_orders.php?msg=error");
+    header("Location: ../pages/purchase_orders.php?msg=error");
     exit;
 }

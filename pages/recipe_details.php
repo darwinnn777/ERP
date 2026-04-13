@@ -1,8 +1,8 @@
 <?php
     // Iniciar sesión y cargar dependencias
     session_start();
-    require_once 'functions.php';
-    require_once 'db_erp.php';
+    require_once '../config/functions.php';
+    require_once '../config/db_erp.php';
 
     // Seguridad: restringir acceso a administradores u obrador.
     require_role(['admin','obrador']);
@@ -61,7 +61,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Receta - <?= sanitize_input($main_product['name']) ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body class="admin-layout">
 
@@ -81,7 +81,7 @@
             <div class="card card-login border-1 shadow-sm">
                 <div class="card-body">
                     <h5 class="fw-bold mb-3">Añadir Ingrediente</h5>
-                    <form action="save_recipe_item.php" method="POST">
+                    <form action="../actions/save_recipe_item.php" method="POST">
                         <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                         <input type="hidden" name="final_product_id" value="<?= $final_product_id ?>">
                         
@@ -130,7 +130,7 @@
                                         <td><?= number_format($row['quantity_needed'], 3) ?></td>
                                         <td><span class="badge bg-light text-dark border"><?= $row['unit_of_measure'] ?></span></td>
                                         <td>
-                                            <form action="save_recipe_item.php" method="POST" onsubmit="return confirm('¿Eliminar este ingrediente de la receta?');">
+                                            <form action="../actions/save_recipe_item.php" method="POST" onsubmit="return confirm('¿Eliminar este ingrediente de la receta?');">
                                                 <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                                                 <input type="hidden" name="recipe_id" value="<?= $row['recipe_id'] ?>">
                                                 <input type="hidden" name="final_product_id" value="<?= $final_product_id ?>">

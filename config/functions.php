@@ -48,9 +48,9 @@ function is_logged_in(): bool {
 
 // 3. Restringe el acceso a una pagina segun el rol.
 // 3. Restrict access to a page according to the role.
-function require_role($required_role, string $redirect_page = 'dashboard.php') {
+function require_role($required_role, string $redirect_page = '../pages/dashboard.php') {
     if (!is_logged_in()) {
-        header('Location: login.php');
+        header('Location: ../pages/login.php');
         exit;
     }
     
@@ -109,7 +109,7 @@ function log_out() {
         session_destroy();
 
         // 5. Redirigimos al usuario a la página de login.
-        header('Location: login.php');
+        header('Location: ../pages/login.php');
         exit;
 }
 

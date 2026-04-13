@@ -4,8 +4,8 @@
  *  Recipe items management
  */
 session_start();
-require_once 'functions.php';
-require_once 'db_erp.php';
+require_once '../config/functions.php';
+require_once '../config/db_erp.php';
 
 // Solo personal autorizado 
 // Authorized personnel only
@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->execute([$final_product_id, $ingredient_id, $quantity_needed]);
                 }
                 
-                header("Location: recipe_details.php?id=$final_product_id&msg=ok");
+                header("Location: ../pages/recipe_details.php?id=$final_product_id&msg=ok");
                 exit;
             }
         } elseif ($action === 'delete') {
@@ -63,17 +63,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $pdo->prepare($delete_sql);
                 $stmt->execute([$recipe_id]);
                 
-                header("Location: recipe_details.php?id=$final_product_id&msg=ok");
+                header("Location: ../pages/recipe_details.php?id=$final_product_id&msg=ok");
                 exit;
             }
         }
     } catch (PDOException $ex) {
-        header("Location: recipe_details.php?id=$final_product_id&msg=error");
+        header("Location: ../pages/recipe_details.php?id=$final_product_id&msg=error");
         exit;
     }
 }
 
 // Redirección por defecto 
 // Default redirect
-header("Location: products_management.php");
+header("Location: ../pages/products_management.php");
 exit;
