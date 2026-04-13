@@ -49,7 +49,7 @@ try {
  
         <!-- Logo: la imagen está en la carpeta img/ del proyecto -->
         <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="#">
-            <img src="img_products/logoB.png"
+            <img src="img_products/logo.png"
                  alt="Logo ERP Bakery"
                  class="navbar-logo">
             ERP Bakery
