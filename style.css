@@ -160,7 +160,7 @@ body {
 
 /* -- Logo en la navbar -- */
 .navbar-logo {
-    height: 80px;         /* Ajusta este valor para hacerlo más grande o pequeño */
+    height: 100px;         /* Ajusta este valor para hacerlo más grande o pequeño */
     width: auto;          /* Mantiene las proporciones originales */
 
     /*
