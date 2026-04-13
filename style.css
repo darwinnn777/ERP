@@ -145,9 +145,10 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.4rem;
+    font-size: 1.4rem;      /* controla el tamaño del icono <i> */
     margin-bottom: 1rem;
     background-color: rgba(163, 93, 69, 0.1);
+    color: var(--color-bakery); /* color por defecto, se sobreescribe inline */
 }
  
 /* -- Alerta de stock -- */
