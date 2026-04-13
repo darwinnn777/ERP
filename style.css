@@ -163,12 +163,4 @@ body {
     height: 100px;         /* Ajusta este valor para hacerlo más grande o pequeño */
     width: auto;          /* Mantiene las proporciones originales */
 
-    /*
-     * mix-blend-mode: lighten elimina el fondo negro de la imagen.
-     * Funciona porque mezcla los píxeles negros (que son "oscuridad pura")
-     * con el fondo de la navbar, haciéndolos transparentes visualmente.
-     * Si en el futuro tienes el logo con fondo transparente (.png), 
-     * puedes eliminar esta línea y quedará igual de bien.
-     */
-    mix-blend-mode: lighten;
 }
