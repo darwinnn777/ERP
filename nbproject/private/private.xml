@@ -6,15 +6,18 @@
             <file>file:/C:/xampp/htdocs/TFG/db_erp.php</file>
             <file>file:/C:/xampp/htdocs/TFG/style.css</file>
             <file>file:/C:/xampp/htdocs/TFG/logout.php</file>
+            <file>file:/C:/xampp/htdocs/TFG/process_receive_stock.php</file>
+            <file>file:/C:/xampp/htdocs/TFG/purchase_orders.php</file>
+            <file>file:/C:/xampp/htdocs/TFG/setup_users.php</file>
             <file>file:/C:/xampp/htdocs/TFG/insert_users.php</file>
             <file>file:/C:/xampp/htdocs/TFG/functions.php</file>
             <file>file:/C:/xampp/htdocs/TFG/recipe_details.php</file>
-            <file>file:/C:/xampp/htdocs/TFG/new_batch.php</file>
             <file>file:/C:/xampp/htdocs/TFG/dashboard.php</file>
             <file>file:/C:/xampp/htdocs/TFG/users_management.php</file>
             <file>file:/C:/xampp/htdocs/TFG/save_recipe_item.php</file>
             <file>file:/C:/xampp/htdocs/TFG/products_management.php</file>
             <file>file:/C:/xampp/htdocs/TFG/login.php</file>
+            <file>file:/C:/xampp/htdocs/TFG/apply_discount.php</file>
             <file>file:/C:/xampp/htdocs/TFG/stock.php</file>
             <file>file:/C:/xampp/htdocs/TFG/save_product.php</file>
         </group>

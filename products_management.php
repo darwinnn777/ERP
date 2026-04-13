@@ -29,11 +29,11 @@ if (isset($_GET['msg'])) {
     $class = "alert-info";
 
     switch ($_GET['msg']) {
-        case 'ok': $message = "Producto guardado correctamente."; $class = "alert-success"; break;
-        case 'success': $message = "Imagen subida con éxito."; $class = "alert-success"; break;
-        case 'deleted': $message = "Producto eliminado del catálogo."; $class = "alert-warning"; break;
-        case 'error_in_use': $message = "No se puede eliminar: el producto está en una receta."; $class = "alert-danger"; break;
-        default: $message = "Acción realizada."; $class = "alert-primary"; break;
+        case 'ok': { $message = "Producto guardado correctamente."; $class = "alert-success"; break; }
+        case 'success': { $message = "Imagen subida con éxito."; $class = "alert-success"; break; }
+        case 'deleted': { $message = "Producto eliminado del catálogo."; $class = "alert-warning"; break; }
+        case 'error_in_use': { $message = "No se puede eliminar: el producto está en una receta."; $class = "alert-danger"; break; }
+        default: { $message = "Acción realizada."; $class = "alert-primary"; break; }
     }
 
     $message_html = "<div class='alert $class alert-dismissible fade show' role='alert'>
@@ -98,11 +98,11 @@ if (isset($_GET['msg'])) {
 
                 <div class="col-md-1">
                     <label class="small fw-bold">P. Compra</label>
-                    <input type="number" name="price_buy" step="0.01" class="form-control" placeholder="0.00" required>
+                    <input type="number" name="price_buy" step="0.01" class="form-control" value="0.00" required>
                 </div>
                 <div class="col-md-1">
                     <label class="small fw-bold">P. Venta</label>
-                    <input type="number" name="price_sell" step="0.01" class="form-control" placeholder="0.00" required>
+                    <input type="number" name="price_sell" step="0.01" class="form-control" value="0.00" required>
                 </div>
                 
                 <div class="col-md-1 d-flex align-items-end">
@@ -158,7 +158,9 @@ if (isset($_GET['msg'])) {
                             </span>
                         </td>
                         <td class="small fw-bold"><?= sanitize_input($p['unit_of_measure']) ?></td>
-                        <td class="fw-bold text-success"><?= number_format($p['price_sell'], 2) ?> €</td>
+                        <td class="fw-bold text-success">
+                            <?= ($p['price_sell'] > 0) ? number_format($p['price_sell'], 2) . ' €' : '<span class="text-muted">-</span>' ?>
+                        </td>
                         <td>
                             <div class="d-flex justify-content-center gap-1">
                                 <?php if($is_final): ?>
@@ -243,11 +245,11 @@ if (isset($_GET['msg'])) {
                     <div class="row">
                         <div class="col-6 mb-3">
                             <label class="small fw-bold">Precio de Compra (€)</label>
-                            <input type="number" name="price_buy" id="edit_price_buy" step="0.01" class="form-control" required>
+                            <input type="number" name="price_buy" id="edit_price_buy" step="0.01" class="form-control" value="0.00" required>
                         </div>
                         <div class="col-6 mb-3">
                             <label class="small fw-bold">Precio de Venta (€)</label>
-                            <input type="number" name="price_sell" id="edit_price_sell" step="0.01" class="form-control" required>
+                            <input type="number" name="price_sell" id="edit_price_sell" step="0.01" class="form-control" value="0.00" required>
                         </div>
                     </div>
                     
@@ -260,7 +262,7 @@ if (isset($_GET['msg'])) {
         </div>
     </div>
 </div>
- 
+
 <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content border-0 shadow-lg">
@@ -292,7 +294,6 @@ function prepare_modal(id){
     document.getElementById('modal_product_id').value = id;
 }
 
-// Ahora el script JavaScript también coge los precios para meterlos en el popup de editar
 function prepare_edit_modal(id, sku, name, type, unit, price_buy, price_sell){
     document.getElementById('edit_id').value = id;
     document.getElementById('edit_sku').value = sku;
