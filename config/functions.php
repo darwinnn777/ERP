@@ -151,4 +151,35 @@ function get_product_types() {
         'Final Product' => 'Producto Final / Venta'
     ];
 }
+
+
+//10.Obtener datos de stock priorizando lotes con descuento
+function get_product_data($pdo, $productId) {
+    // 1. Get base price from products / Precio base
+    $stmt = $pdo->prepare("SELECT price_sell FROM public.products WHERE id = ?");
+    $stmt->execute([$productId]);
+    $basePrice = (float)$stmt->fetchColumn();
+
+    // 2. Check if there are ANY lots with discount for this product
+    // Comprobar si hay ALGÚN lote con descuento para este producto
+    $stmtDiscount = $pdo->prepare("
+        SELECT SUM(quantity) 
+        FROM public.stock_lots 
+        WHERE product_id = ? AND quantity > 0 AND is_discounted = TRUE
+    ");
+    $stmtDiscount->execute([$productId]);
+    $discountedStock = (float)$stmtDiscount->fetchColumn();
+
+    // 3. Get total stock / Stock total
+    $stmtTotal = $pdo->prepare("SELECT SUM(quantity) FROM public.stock_lots WHERE product_id = ? AND quantity > 0");
+    $stmtTotal->execute([$productId]);
+    $totalStock = (float)$stmtTotal->fetchColumn();
+
+    return [
+        'price' => $basePrice,
+        'stock' => $totalStock,
+        'discounted_stock' => $discountedStock,
+        'on_sale' => ($discountedStock > 0) // True if there are units to clear / True si hay unidades que liquidar
+    ];
+}
 ?>

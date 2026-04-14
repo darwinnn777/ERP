@@ -160,7 +160,7 @@ try {
                     <p class="card-text text-muted">
                         Atender clientes, caja registradora y ventas en tiempo real.
                     </p>
-                    <a href="ventas.php" class="btn btn-success w-100 rounded-pill mt-2">
+                    <a href="point_of_sale.php" class="btn btn-success w-100 rounded-pill mt-2">
                         Abrir Caja (Vender)
                     </a>
                 </div>
