@@ -107,11 +107,11 @@ body {
 }
 
 
-/* =================================================================
+/* 
    ESTILOS NUEVOS DEL DASHBOARD
    Todo lo de abajo es específico del dashboard (dashboard.php)
    y no afecta al resto de páginas
-   ================================================================= */
+*/
 
 /* -- Navbar del dashboard -- */
 .navbar-dashboard {
@@ -169,4 +169,12 @@ body {
     /* Ajusta este valor para hacerlo más grande o pequeño */
     width: auto;
     /* Mantiene las proporciones originales */
+}
+@keyframes pulse-red {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+    100% { transform: scale(1); }
+}
+.pulse {
+    animation: pulse-red 2s infinite;
 }
