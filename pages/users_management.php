@@ -1,18 +1,17 @@
 <?php
 /**
- * Gestión de Usuarios / User Management
- * ERP Bakery - 2026
+ * Gestión de Usuarios - ERP Bakery 2026
+ * Funcionalidad completa con diseño de Dropdowns
  */
 session_start();
 require_once '../config/db_erp.php';
 require_once '../config/functions.php';
 
-// SEGURIDAD: Restringir el acceso solo a administradores
 require_role('admin');
 
 $alert_message = '';
 
-// --- LÓGICA DE ACTUALIZACIÓN ---
+// --- LÓGICA DE ACTUALIZACIÓN (Tu código original) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_role') {
     csrf_check($_POST['csrf_token'] ?? '');
     
@@ -47,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// --- LÓGICA DE BORRADO ---
+// --- LÓGICA DE BORRADO (Tu código original) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete') {
     csrf_check($_POST['csrf_token'] ?? '');
     $id_delete = filter_var($_POST['id'], FILTER_SANITIZE_NUMBER_INT);
@@ -85,34 +84,22 @@ try {
 
 // --- MENSAJES DE FEEDBACK ---
 if (isset($_SESSION['registry_errors'])) {
-    $alert_message = "<div class='alert alert-danger border-0 shadow-sm rounded-4'>
-                        <p class='mb-1 fw-bold small text-uppercase'>Errores de validación:</p>
+    $alert_message = "<div class='alert alert-danger border-0 shadow-sm rounded-4 alert-dismissible fade show'>
+                        <p class='mb-1 fw-bold small text-uppercase'>Errores:</p>
                         <ul class='mb-0 small'>";
-    foreach ($_SESSION['registry_errors'] as $error) { 
-        $alert_message .= "<li>" . sanitize_input($error) . "</li>"; 
-    }
-    $alert_message .= "</ul></div>";
+    foreach ($_SESSION['registry_errors'] as $error) { $alert_message .= "<li>" . sanitize_input($error) . "</li>"; }
+    $alert_message .= "</ul><button type='button' class='btn-close' data-bs-dismiss='alert'></button></div>";
     unset($_SESSION['registry_errors']);
 } elseif (isset($_GET['msg'])) {
     $msg = $_GET['msg'];
+    $text = "";
     switch ($msg) {
-        case 'success': {
-            $alert_message = "<div class='alert alert-success border-0 shadow-sm rounded-4'>Usuario creado correctamente.</div>"; 
-            break;
-        }
-        case 'deleted': {
-            $alert_message = "<div class='alert alert-dark border-0 shadow-sm rounded-4'>Usuario eliminado.</div>"; 
-            break;
-        }
-        case 'updated': {
-            $alert_message = "<div class='alert alert-info border-0 shadow-sm rounded-4'>Rol actualizado correctamente.</div>"; 
-            break;
-        }
-        case 'updated_pass': {
-            $alert_message = "<div class='alert alert-success border-0 shadow-sm rounded-4'>Rol y Contraseña actualizados correctamente.</div>"; 
-            break;
-        }
+        case 'success': $text = "Usuario creado correctamente."; break;
+        case 'deleted': $text = "Usuario eliminado."; break;
+        case 'updated': $text = "Rol actualizado correctamente."; break;
+        case 'updated_pass': $text = "Rol y contraseña actualizados."; break;
     }
+    if($text) $alert_message = "<div class='alert alert-info border-0 shadow-sm rounded-4 alert-dismissible fade show'>$text <button type='button' class='btn-close' data-bs-dismiss='alert'></button></div>";
 }
 ?>
 
@@ -126,68 +113,59 @@ if (isset($_SESSION['registry_errors'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
-<body class="bg-bakery-light p-4">
+<body class="admin-layout">
 
-<div class="container">
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb bg-white p-2 rounded shadow-sm border">
-            <li class="breadcrumb-item"><a href="dashboard.php" class="text-bakery text-decoration-none">Inicio</a></li>
-            <li class="breadcrumb-item active text-muted">Gestión de Usuarios</li>
-        </ol>
-    </nav>
-
-    <div class="row align-items-center mb-4">
-        <div class="col-md-6">
-            <h2 class="text-bakery-dark fw-bold mb-0">Gestión de Personal</h2>
-            <p class="text-muted mb-0">Administra los accesos y roles de la panadería.</p>
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-bakery fw-bold mb-0">Gestión de Personal</h2>
+            <p class="text-muted small">Administra los accesos y roles de la panadería.</p>
         </div>
-        <div class="col-md-6 text-md-end mt-3 mt-md-0">
-            <button type="button" class="btn btn-bakery px-4 rounded-pill fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
+        <div>
+            <button type="button" class="btn btn-bakery rounded-pill px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#addUserModal">
                 <i class="bi bi-person-plus-fill me-2"></i> Nuevo Usuario
             </button>
-        </div>
-    </div>
-
-    <div class="mb-4">
-        <div class="input-group shadow-sm rounded-pill overflow-hidden border bg-white">
-            <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
-            <input type="text" id="user_live_search" class="form-control border-0" 
-                   placeholder="Buscar por nombre de usuario..." autocomplete="off"
-                   onkeyup="filterTable()">
-            <button class="btn btn-link text-secondary text-decoration-none border-start" type="button" onclick="clearSearch()">Limpiar</button>
+            <a href="dashboard.php" class="btn btn-outline-secondary rounded-pill ms-2">Volver</a>
         </div>
     </div>
 
     <?= $alert_message ?>
 
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+    <div class="mb-4">
+        <input type="text" id="user_live_search" class="form-control rounded-pill shadow-sm px-4" 
+               placeholder="Buscar por usuario o nombre completo..." onkeyup="filterTable()">
+    </div>
+
+    <div class="card card-table shadow-sm rounded-4 overflow-hidden border-0">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0" id="usersTable">
-                <thead class="bg-bakery-dark text-white">
-                    <tr class="small text-uppercase">
-                        <th class="ps-4 py-3">Usuario</th>
-                        <th class="py-3">Nombre Completo</th>
-                        <th class="py-3 text-center">Rol</th>
-                        <th class="py-3 text-center">Acciones</th>
+                <thead class="thead-bakery text-center text-white">
+                    <tr>
+                        <th class="ps-4">Usuario</th>
+                        <th class="text-start">Nombre Completo</th>
+                        <th>Rol</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="text-center bg-white">
                     <?php foreach ($users_list as $row): ?>
                     <tr class="user-row">
-                        <td class="ps-4 py-3 fw-bold text-bakery-dark username-cell"><?= sanitize_input($row['username']) ?></td>
-                        <td class="py-3 text-secondary"><?= sanitize_input($row['full_name']) ?></td>
-                        <td class="py-3 text-center">
-                            <span class="badge border border-bakery text-bakery text-uppercase rounded-pill px-3"><?= sanitize_input($row['role_name']) ?></span>
+                        <td class="ps-4 fw-bold text-muted username-cell small"><?= sanitize_input($row['username']) ?></td>
+                        <td class="text-start fw-bold name-cell"><?= sanitize_input($row['full_name']) ?></td>
+                        <td>
+                            <span class="badge rounded-pill border border-bakery text-bakery px-3">
+                                <?= sanitize_input($row['role_name']) ?>
+                            </span>
                         </td>
-                        <td class="py-3 text-center">
+                        <td>
                             <?php if ($row['id'] == ($_SESSION['user_id'] ?? 0)): ?>
                                 <span class="badge bg-success text-white rounded-pill px-3">
                                     <i class="bi bi-person-check-fill me-1"></i> Tú
                                 </span>
                             <?php else: ?>
                                 <div class="dropdown">
-                                    <button class="btn btn-light btn-sm rounded-circle border shadow-sm" type="button" data-bs-toggle="dropdown">
-                                        <i class="bi bi-three-dots-vertical"></i>
+                                    <button class="btn btn-link text-dark p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-three-dots-vertical fs-5"></i>
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
                                         <li>
@@ -212,11 +190,12 @@ if (isset($_SESSION['registry_errors'])) {
                                         </li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
-                                            <form action="users_management.php" method="POST" onsubmit="return confirm('¿Eliminar permanentemente a este usuario?')">
+                                            <form action="users_management.php" method="POST" id="deleteForm<?= $row['id'] ?>">
                                                 <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                                                 <input type="hidden" name="action" value="delete">
                                                 <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                                                <button type="submit" class="dropdown-item py-2 text-danger">
+                                                <button type="button" class="dropdown-item py-2 text-danger" 
+                                                        onclick="if(confirm('¿Eliminar permanentemente a este usuario?')) document.getElementById('deleteForm<?= $row['id'] ?>').submit();">
                                                     <i class="bi bi-trash3-fill me-2"></i> Eliminar
                                                 </button>
                                             </form>
@@ -227,12 +206,6 @@ if (isset($_SESSION['registry_errors'])) {
                         </td>
                     </tr>
                     <?php endforeach; ?>
-                    <tr id="noResultsRow" class="d-none">
-                        <td colspan="4" class="text-center py-5 text-muted">
-                            <i class="bi bi-person-exclamation fs-1 d-block mb-2"></i>
-                            No se encontraron usuarios que coincidan.
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         </div>
@@ -250,25 +223,25 @@ if (isset($_SESSION['registry_errors'])) {
                 </div>
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-bakery-dark">Usuario de acceso</label>
+                        <label class="form-label small fw-bold">Usuario de acceso</label>
                         <input type="text" name="user" class="form-control rounded-3" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-bakery-dark">Nombre Completo</label>
+                        <label class="form-label small fw-bold">Nombre Completo</label>
                         <input type="text" name="full_name" class="form-control rounded-3" required>
                     </div>
                     <div class="row">
                         <div class="col-6 mb-3">
-                            <label class="form-label small fw-bold text-bakery-dark">Contraseña</label>
+                            <label class="form-label small fw-bold">Contraseña</label>
                             <input type="password" name="password" class="form-control rounded-3" required minlength="5">
                         </div>
                         <div class="col-6 mb-3">
-                            <label class="form-label small fw-bold text-bakery-dark">Confirmar</label>
+                            <label class="form-label small fw-bold">Confirmar</label>
                             <input type="password" name="confirm_password" class="form-control rounded-3" required minlength="5">
                         </div>
                     </div>
-                    <div>
-                        <label class="form-label small fw-bold text-bakery-dark">Asignar Rol</label>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Asignar Rol</label>
                         <select name="rol_id" class="form-select rounded-3" required>
                             <?php foreach ($roles_list as $r): ?>
                                 <option value="<?= $r['id'] ?>"><?= sanitize_input($r['name']) ?></option>
@@ -297,11 +270,11 @@ if (isset($_SESSION['registry_errors'])) {
                 </div>
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label small fw-bold">ID / Login</label>
+                        <label class="form-label small fw-bold">Usuario / Login</label>
                         <input type="text" id="edit_username" class="form-control bg-light border-0" readonly>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-bakery-dark">Rol del Usuario</label>
+                        <label class="form-label small fw-bold">Rol del Usuario</label>
                         <select name="role_id" id="edit_role_id" class="form-select rounded-3" required>
                             <?php foreach ($roles_list as $r): ?>
                                 <option value="<?= $r['id'] ?>"><?= sanitize_input($r['name']) ?></option>
@@ -309,15 +282,13 @@ if (isset($_SESSION['registry_errors'])) {
                         </select>
                     </div>
                     <hr class="my-4">
-                    <p class="text-muted small fw-bold mb-3"><i class="bi bi-key me-1"></i> Actualizar Contraseña (Opcional)</p>
+                    <p class="text-muted small fw-bold mb-3"><i class="bi bi-key me-1"></i> Cambiar Contraseña (Opcional)</p>
                     <div class="row">
                         <div class="col-6 mb-3">
-                            <label class="form-label small fw-bold text-bakery-dark">Nueva Clave</label>
-                            <input type="password" name="new_password" id="edit_pass1" class="form-control rounded-3" placeholder="Mín. 5 carac.">
+                            <input type="password" name="new_password" id="edit_pass1" class="form-control rounded-3" placeholder="Nueva clave">
                         </div>
                         <div class="col-6 mb-3">
-                            <label class="form-label small fw-bold text-bakery-dark">Confirmar</label>
-                            <input type="password" name="confirm_password" id="edit_pass2" class="form-control rounded-3" placeholder="Confirmar">
+                            <input type="password" name="confirm_password" id="edit_pass2" class="form-control rounded-3" placeholder="Repetir">
                         </div>
                     </div>
                 </div>
@@ -346,21 +317,18 @@ if (isset($_SESSION['registry_errors'])) {
                 </div>
                 <div class="list-group list-group-flush border-top border-bottom">
                     <div class="list-group-item d-flex justify-content-between py-3 border-0">
-                        <span class="text-muted fw-bold">ID Sistema</span>
-                        <span id="info_id"></span>
+                        <span class="text-muted fw-bold small">ID SISTEMA</span>
+                        <span id="info_id" class="small"></span>
                     </div>
                     <div class="list-group-item d-flex justify-content-between py-3 border-0">
-                        <span class="text-muted fw-bold">Nombre Completo</span>
-                        <span id="info_full" class="text-bakery-dark fw-bold"></span>
+                        <span class="text-muted fw-bold small">NOMBRE COMPLETO</span>
+                        <span id="info_full" class="text-bakery-dark fw-bold small"></span>
                     </div>
                 </div>
                 <div class="mt-4 p-3 bg-light rounded-3 border">
-                    <label class="small fw-bold text-muted d-block mb-1">Hash de Seguridad (Cifrado):</label>
-                    <code id="info_hash" class="text-break small text-secondary"></code>
+                    <label class="small fw-bold text-muted d-block mb-1">HASH DE SEGURIDAD:</label>
+                    <code id="info_hash" class="text-break small text-secondary" style="font-size: 0.75rem;"></code>
                 </div>
-            </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-outline-secondary w-100 rounded-pill fw-bold" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -368,50 +336,41 @@ if (isset($_SESSION['registry_errors'])) {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+// LIVE SEARCH
 function filterTable() {
-    let input = document.getElementById('user_live_search');
-    let filter = input.value.toLowerCase();
-    let rows = document.getElementsByClassName('user-row');
-    let noResults = document.getElementById('noResultsRow');
-    let visibleCount = 0;
-
-    for (let i = 0; i < rows.length; i++) {
-        let username = rows[i].getElementsByClassName('username-cell')[0].innerText.toLowerCase();
-        if (username.indexOf(filter) > -1) {
-            rows[i].classList.remove('d-none');
-            visibleCount++;
-        } else {
-            rows[i].classList.add('d-none');
-        }
-    }
-    visibleCount === 0 ? noResults.classList.remove('d-none') : noResults.classList.add('d-none');
+    let filter = document.getElementById('user_live_search').value.toLowerCase();
+    let rows = document.querySelectorAll('.user-row');
+    rows.forEach(row => {
+        let user = row.querySelector('.username-cell').innerText.toLowerCase();
+        let name = row.querySelector('.name-cell').innerText.toLowerCase();
+        row.style.display = (user.includes(filter) || name.includes(filter)) ? '' : 'none';
+    });
 }
 
-function clearSearch() {
-    document.getElementById('user_live_search').value = "";
-    filterTable();
-}
-
+// LÓGICA DE CARGA DE MODALES (Restaurada de tu original)
 var editModal = document.getElementById('editUserModal');
-editModal.addEventListener('show.bs.modal', function (event) {
-    var boton = event.relatedTarget;
-    document.getElementById('edit_user_id').value = boton.getAttribute('data-bs-id');
-    document.getElementById('edit_username').value = boton.getAttribute('data-bs-user');
-    document.getElementById('edit_role_id').value = boton.getAttribute('data-bs-role');
-    document.getElementById('edit_pass1').value = '';
-    document.getElementById('edit_pass2').value = '';
-});
+if(editModal){
+    editModal.addEventListener('show.bs.modal', function (event) {
+        var boton = event.relatedTarget;
+        document.getElementById('edit_user_id').value = boton.getAttribute('data-bs-id');
+        document.getElementById('edit_username').value = boton.getAttribute('data-bs-user');
+        document.getElementById('edit_role_id').value = boton.getAttribute('data-bs-role');
+        document.getElementById('edit_pass1').value = '';
+        document.getElementById('edit_pass2').value = '';
+    });
+}
 
 var infoModal = document.getElementById('infoUserModal');
-infoModal.addEventListener('show.bs.modal', function (event) {
-    var boton = event.relatedTarget;
-    document.getElementById('info_id').innerText = boton.getAttribute('data-bs-id');
-    document.getElementById('info_username').innerText = boton.getAttribute('data-bs-user');
-    var fullName = boton.getAttribute('data-bs-full');
-    document.getElementById('info_full').innerText = fullName ? fullName : 'No registrado';
-    document.getElementById('info_role').innerText = boton.getAttribute('data-bs-role');
-    document.getElementById('info_hash').innerText = boton.getAttribute('data-bs-hash');
-});
+if(infoModal){
+    infoModal.addEventListener('show.bs.modal', function (event) {
+        var boton = event.relatedTarget;
+        document.getElementById('info_id').innerText = boton.getAttribute('data-bs-id');
+        document.getElementById('info_username').innerText = boton.getAttribute('data-bs-user');
+        document.getElementById('info_full').innerText = boton.getAttribute('data-bs-full') || 'No registrado';
+        document.getElementById('info_role').innerText = boton.getAttribute('data-bs-role');
+        document.getElementById('info_hash').innerText = boton.getAttribute('data-bs-hash');
+    });
+}
 </script>
 </body>
 </html>
