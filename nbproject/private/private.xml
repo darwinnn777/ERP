@@ -4,15 +4,18 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/xampp/htdocs/TFG/pages/products_management.php</file>
-            <file>file:/C:/xampp/htdocs/TFG/actions/apply_discount.php</file>
             <file>file:/C:/xampp/htdocs/TFG/assets/css/style.css</file>
             <file>file:/C:/xampp/htdocs/TFG/actions/process_receive_stock.php</file>
             <file>file:/C:/xampp/htdocs/TFG/pages/receive_order.php</file>
-            <file>file:/C:/xampp/htdocs/TFG/pages/stock.php</file>
             <file>file:/C:/xampp/htdocs/TFG/pages/dashboard.php</file>
             <file>file:/C:/xampp/htdocs/TFG/config/functions.php</file>
-            <file>file:/C:/xampp/htdocs/TFG/pages/login.php</file>
             <file>file:/C:/xampp/htdocs/TFG/pages/purchase_orders.php</file>
+            <file>file:/C:/xampp/htdocs/TFG/actions/save_recipe_item.php</file>
+            <file>file:/C:/xampp/htdocs/TFG/pages/users_management.php</file>
+            <file>file:/C:/xampp/htdocs/TFG/actions/apply_discount.php</file>
+            <file>file:/C:/xampp/htdocs/TFG/pages/stock.php</file>
+            <file>file:/C:/xampp/htdocs/TFG/actions/save_product.php</file>
+            <file>file:/C:/xampp/htdocs/TFG/pages/login.php</file>
             <file>file:/C:/xampp/htdocs/TFG/pages/point_of_sale.php</file>
         </group>
     </open-files>

@@ -11,7 +11,7 @@ require_once '../config/functions.php';
 // SEGURIDAD: Solo los jefes pueden entrar aquí
 // SECURITY: Admin access only
 require_role(['admin']);
-
+//IKran
 // LÓGICA DE MENSAJES DE FEEDBACK
 // FEEDBACK MESSAGES LOGIC
 $msg_text = "";
