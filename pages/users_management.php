@@ -1,7 +1,6 @@
 <?php
 /**
- * Gestión de Usuarios - ERP Bakery 2026
- * Funcionalidad completa con diseño de Dropdowns
+ * Gestión de Usuarios - ERP Bakery 2026 (MVC Version)
  */
 session_start();
 require_once '../config/db_erp.php';
@@ -9,98 +8,19 @@ require_once '../config/functions.php';
 
 require_role('admin');
 
-$alert_message = '';
-
-// --- LÓGICA DE ACTUALIZACIÓN (Tu código original) ---
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_role') {
-    csrf_check($_POST['csrf_token'] ?? '');
-    
-    $target_id = (int)$_POST['id'];
-    $new_role = (int)$_POST['role_id'];
-    $new_pass = trim($_POST['new_password'] ?? '');
-    $confirm_pass = trim($_POST['confirm_password'] ?? '');
-
-    if (!empty($new_pass)) {
-        if (strlen($new_pass) < 5) {
-            $_SESSION['registry_errors'] = ["La nueva contraseña debe tener al menos 5 caracteres."];
-            header("Location: users_management.php");
-            exit;
-        }
-
-        if ($new_pass === $confirm_pass) {
-            $pass_hashed = password_hash($new_pass, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("UPDATE users SET role_id = ?, password_hash = ? WHERE id = ?");
-            $stmt->execute([$new_role, $pass_hashed, $target_id]);
-            header("Location: users_management.php?msg=updated_pass");
-            exit;
-        } else {
-            $_SESSION['registry_errors'] = ["Las contraseñas nuevas no coinciden."];
-            header("Location: users_management.php");
-            exit;
-        }
-    } else {
-        $stmt = $pdo->prepare("UPDATE users SET role_id = ? WHERE id = ?");
-        $stmt->execute([$new_role, $target_id]);
-        header("Location: users_management.php?msg=updated");
-        exit;
-    }
+// 1. POST Request (AJAX via FormData)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_once '../app/Controllers/UsersController.php';
+    $controller = new UsersController($pdo);
+    $controller->handleRequest();
+    exit;
 }
 
-// --- LÓGICA DE BORRADO (Tu código original) ---
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete') {
-    csrf_check($_POST['csrf_token'] ?? '');
-    $id_delete = filter_var($_POST['id'], FILTER_SANITIZE_NUMBER_INT);
-    
-    if ($id_delete) {
-        try {
-            $delete_query = "DELETE FROM users WHERE id = :id AND id != 1 AND role_id != 1";
-            $stmt_delete = $pdo->prepare($delete_query);
-            $stmt_delete->execute(['id' => $id_delete]);
-            header("Location: users_management.php?msg=deleted");
-            exit;
-        } catch (PDOException $ex) {
-            $alert_message = "<div class='alert alert-danger shadow-sm rounded-4'>Error al eliminar usuario.</div>";
-        }
-    }
-}
-
-// --- OBTENER DATOS ---
-try {
-    $users_query = "SELECT u.id, u.username, u.full_name, u.password_hash, u.role_id, r.name AS role_name
-                    FROM users u
-                    JOIN roles r ON u.role_id = r.id
-                    ORDER BY u.id DESC";
-    $stmt = $pdo->prepare($users_query);
-    $stmt->execute();
-    $users_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    $roles_query = "SELECT id, name FROM roles ORDER BY id";
-    $stmt_roles = $pdo->prepare($roles_query);
-    $stmt_roles->execute();
-    $roles_list = $stmt_roles->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $ex) {
-    die("Error SQL: " . $ex->getMessage());
-}
-
-// --- MENSAJES DE FEEDBACK ---
-if (isset($_SESSION['registry_errors'])) {
-    $alert_message = "<div class='alert alert-danger border-0 shadow-sm rounded-4 alert-dismissible fade show'>
-                        <p class='mb-1 fw-bold small text-uppercase'>Errores:</p>
-                        <ul class='mb-0 small'>";
-    foreach ($_SESSION['registry_errors'] as $error) { $alert_message .= "<li>" . sanitize_input($error) . "</li>"; }
-    $alert_message .= "</ul><button type='button' class='btn-close' data-bs-dismiss='alert'></button></div>";
-    unset($_SESSION['registry_errors']);
-} elseif (isset($_GET['msg'])) {
-    $msg = $_GET['msg'];
-    $text = "";
-    switch ($msg) {
-        case 'success': $text = "Usuario creado correctamente."; break;
-        case 'deleted': $text = "Usuario eliminado."; break;
-        case 'updated': $text = "Rol actualizado correctamente."; break;
-        case 'updated_pass': $text = "Rol y contraseña actualizados."; break;
-    }
-    if($text) $alert_message = "<div class='alert alert-info border-0 shadow-sm rounded-4 alert-dismissible fade show'>$text <button type='button' class='btn-close' data-bs-dismiss='alert'></button></div>";
-}
+// 2. GET Request (Prepare View)
+require_once '../app/Controllers/UsersController.php';
+$controller = new UsersController($pdo);
+$users_list = $controller->getUsersForView();
+$roles_list = $controller->getRolesForView();
 ?>
 
 <!DOCTYPE html>
@@ -112,8 +32,14 @@ if (isset($_SESSION['registry_errors'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 1055; }
+    </style>
 </head>
 <body class="admin-layout">
+
+<!-- Notification Toast Container for AJAX messages -->
+<div class="toast-container"></div>
 
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -128,8 +54,6 @@ if (isset($_SESSION['registry_errors'])) {
             <a href="dashboard.php" class="btn btn-outline-secondary rounded-pill ms-2">Volver</a>
         </div>
     </div>
-
-    <?= $alert_message ?>
 
     <div class="mb-4">
         <input type="text" id="user_live_search" class="form-control rounded-pill shadow-sm px-4" 
@@ -149,7 +73,7 @@ if (isset($_SESSION['registry_errors'])) {
                 </thead>
                 <tbody class="text-center bg-white">
                     <?php foreach ($users_list as $row): ?>
-                    <tr class="user-row">
+                    <tr class="user-row" id="row-user-<?= $row['id'] ?>">
                         <td class="ps-4 fw-bold text-muted username-cell small"><?= sanitize_input($row['username']) ?></td>
                         <td class="text-start fw-bold name-cell"><?= sanitize_input($row['full_name']) ?></td>
                         <td>
@@ -190,15 +114,9 @@ if (isset($_SESSION['registry_errors'])) {
                                         </li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
-                                            <form action="users_management.php" method="POST" id="deleteForm<?= $row['id'] ?>">
-                                                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                                                <input type="hidden" name="action" value="delete">
-                                                <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                                                <button type="button" class="dropdown-item py-2 text-danger" 
-                                                        onclick="if(confirm('¿Eliminar permanentemente a este usuario?')) document.getElementById('deleteForm<?= $row['id'] ?>').submit();">
-                                                    <i class="bi bi-trash3-fill me-2"></i> Eliminar
-                                                </button>
-                                            </form>
+                                            <button type="button" class="dropdown-item py-2 text-danger" onclick="deleteUser(<?= $row['id'] ?>)">
+                                                <i class="bi bi-trash3-fill me-2"></i> Eliminar
+                                            </button>
                                         </li>
                                     </ul>
                                 </div>
@@ -212,10 +130,12 @@ if (isset($_SESSION['registry_errors'])) {
     </div>
 </div>
 
+<!-- ADD USER MODAL -->
 <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-4">
-            <form action="../database/insert_users.php" method="POST">
+            <form id="addUserForm" onsubmit="submitFormAjax(event, 'addUserForm')">
+                <input type="hidden" name="action" value="create_user">
                 <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                 <div class="modal-header bg-bakery-dark text-white border-0 py-3">
                     <h5 class="modal-title fw-bold"><i class="bi bi-person-plus me-2"></i> Registrar Empleado</h5>
@@ -257,10 +177,11 @@ if (isset($_SESSION['registry_errors'])) {
     </div>
 </div>
 
+<!-- EDIT USER MODAL -->
 <div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-4">
-            <form action="users_management.php" method="POST">
+            <form id="editUserForm" onsubmit="submitFormAjax(event, 'editUserForm')">
                 <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                 <input type="hidden" name="action" value="update_role">
                 <input type="hidden" name="id" id="edit_user_id">
@@ -285,10 +206,10 @@ if (isset($_SESSION['registry_errors'])) {
                     <p class="text-muted small fw-bold mb-3"><i class="bi bi-key me-1"></i> Cambiar Contraseña (Opcional)</p>
                     <div class="row">
                         <div class="col-6 mb-3">
-                            <input type="password" name="new_password" id="edit_pass1" class="form-control rounded-3" placeholder="Nueva clave">
+                            <input type="password" name="new_password" id="edit_pass1" class="form-control rounded-3" placeholder="Nueva clave" minlength="5">
                         </div>
                         <div class="col-6 mb-3">
-                            <input type="password" name="confirm_password" id="edit_pass2" class="form-control rounded-3" placeholder="Repetir">
+                            <input type="password" name="confirm_password" id="edit_pass2" class="form-control rounded-3" placeholder="Repetir" minlength="5">
                         </div>
                     </div>
                 </div>
@@ -300,6 +221,7 @@ if (isset($_SESSION['registry_errors'])) {
     </div>
 </div>
 
+<!-- INFO USER MODAL -->
 <div class="modal fade" id="infoUserModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow rounded-4">
@@ -336,7 +258,24 @@ if (isset($_SESSION['registry_errors'])) {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// LIVE SEARCH
+// --- UI Functions ---
+function showToast(message, type = 'success') {
+    const toastContainer = document.querySelector('.toast-container');
+    const bgClass = type === 'success' ? 'bg-success' : 'bg-danger';
+    const toastHtml = `
+        <div class="toast align-items-center text-white ${bgClass} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="d-flex">
+            <div class="toast-body fw-bold">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+          </div>
+        </div>`;
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    const toastEl = toastContainer.lastElementChild;
+    const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+    toast.show();
+    toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+}
+
 function filterTable() {
     let filter = document.getElementById('user_live_search').value.toLowerCase();
     let rows = document.querySelectorAll('.user-row');
@@ -347,7 +286,7 @@ function filterTable() {
     });
 }
 
-// LÓGICA DE CARGA DE MODALES (Restaurada de tu original)
+// LÓGICA DE CARGA DE MODALES
 var editModal = document.getElementById('editUserModal');
 if(editModal){
     editModal.addEventListener('show.bs.modal', function (event) {
@@ -370,6 +309,63 @@ if(infoModal){
         document.getElementById('info_role').innerText = boton.getAttribute('data-bs-role');
         document.getElementById('info_hash').innerText = boton.getAttribute('data-bs-hash');
     });
+}
+
+// --- AJAX Functions ---
+async function submitFormAjax(event, formId) {
+    event.preventDefault();
+    
+    const form = document.getElementById(formId);
+    const formData = new FormData(form);
+
+    const modalEl = form.closest('.modal');
+    if (modalEl) {
+        bootstrap.Modal.getInstance(modalEl).hide();
+    }
+
+    try {
+        const response = await fetch('users_management.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            showToast(result.message, 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            showToast(result.message, 'error');
+        }
+    } catch (error) {
+        showToast('Error de conexión con el servidor', 'error');
+    }
+}
+
+async function deleteUser(id) {
+    if (!confirm('¿Eliminar permanentemente a este usuario?')) return;
+
+    const formData = new FormData();
+    formData.append('action', 'delete');
+    formData.append('id', id);
+    formData.append('csrf_token', '<?= csrf_token() ?>');
+
+    try {
+        const response = await fetch('users_management.php', {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            showToast(result.message, 'success');
+            document.getElementById(`row-user-${id}`).remove();
+        } else {
+            showToast(result.message, 'error');
+        }
+    } catch (error) {
+        showToast('Error de conexión', 'error');
+    }
 }
 </script>
 </body>
