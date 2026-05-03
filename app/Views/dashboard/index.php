@@ -15,7 +15,7 @@
     <div class="container">
         <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="dashboard">
             <img src="assets/img_products/logo.png" alt="Logo ERP Bakery" class="navbar-logo">
-            ERP Bakery <span class="badge bg-light text-dark ms-2 fs-6">MVC</span>
+            ERP Bakery
         </a>
 
         <div class="d-flex align-items-center gap-3 text-white">
