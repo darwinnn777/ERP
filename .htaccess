@@ -1,9 +1,8 @@
 RewriteEngine On
 
-
-# Allow access to existing files and directories
+# Permitir el acceso a archivos y directorios existentes
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 
-# Route everything else to index.php
+# Enruta todo lo demás a index.php
 RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
