@@ -7,7 +7,7 @@
     <title>Catálogo - ERP Bakery (MVC + AJAX)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <!-- SweetAlert2 para sacar las notificaciones bonitas y que no sea el alert feo por defecto -->
+    <!-- sweetalert2 para sacar las notificaciones bonitas y que no sea el alert feo por defecto -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>

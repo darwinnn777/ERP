@@ -1,4 +1,9 @@
 <?php
+//Defina BASE_URL dinámicamente para que funcione en newerp.test o localhost
+$baseDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+$baseUrl = ($baseDir === '/') ? '/' : $baseDir . '/';
+define('BASE_URL', $baseUrl);
+
 // Funciones de Control de Acceso basado en Roles.
 // Role-based Access Control Functions.
 
@@ -48,16 +53,17 @@ function is_logged_in(): bool {
 
 // 3. Restringe el acceso a una pagina segun el rol.
 // 3. Restrict access to a page according to the role.
-function require_role($required_role, string $redirect_page = '../pages/dashboard.php') {
+function require_role($required_role, string $redirect_page = 'dashboard') {
     if (!is_logged_in()) {
-        header('Location: ../pages/login.php');
+        header('Location: ' . BASE_URL . 'login');
         exit;
     }
     
     if (!has_role($required_role)) {
         // Guardamos error en sesion para mostrarlo en el dashboard si quieres
         $_SESSION['error_permiso'] = "No tienes permiso para acceder a esta seccion.";
-        header("Location: $redirect_page");
+        $dest = (strpos($redirect_page, 'http') === 0 || strpos($redirect_page, '/') === 0) ? $redirect_page : BASE_URL . $redirect_page;
+        header("Location: $dest");
         exit;
     }
 }
@@ -109,7 +115,7 @@ function log_out() {
         session_destroy();
 
         // 5. Redirigimos al usuario a la página de login.
-        header('Location: ../pages/login.php');
+        header('Location: ' . BASE_URL . 'login');
         exit;
 }
 
