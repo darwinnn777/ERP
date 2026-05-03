@@ -1,7 +1,7 @@
 <?php
-/**
- * Front Controller - Entry point for the MVC application
- */
+/*
+Controlador frontal: punto de entrada para la aplicación MVC
+*/
 session_start();
 
 
