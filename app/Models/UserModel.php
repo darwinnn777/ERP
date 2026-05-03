@@ -38,6 +38,9 @@ class UserModel extends Model {
     // Añadimos en la propia query la condición de no borrar al id 1 (Admin Root)
     public function deleteUser($id) {
         $stmt = $this->db->prepare("DELETE FROM users WHERE id = ? AND id != 1 AND role_id != 1");
-        return $stmt->execute([$id]);
+        $stmt->execute([$id]);
+        
+        // deveolver true si solo mas 1 fila estaban eliminadas
+        return $stmt->rowCount() > 0; 
     }
 }

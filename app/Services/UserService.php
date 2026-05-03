@@ -66,14 +66,20 @@ class UserService {
         }
     }
 
-    public function deleteUser($id) {
-        // Bloqueo estricto por código: el ID 1 es sagrado y no se puede borrar
+  public function deleteUser($id) {
         if ($id === 1) throw new Exception("No puedes eliminar al administrador principal del sistema.");
+        
         try {
-            $this->userModel->deleteUser($id);
+            $deleted = $this->userModel->deleteUser($id);
+            
+            // Catch the silent failure (0 rows deleted)
+            if (!$deleted) {
+                throw new Exception("No se pudo eliminar. El usuario no existe o es un Administrador protegido.");
+            }
+            
             return "Usuario eliminado permanentemente.";
+            
         } catch (PDOException $ex) {
-            // Si falla el DELETE, suele ser porque el usuario tiene dependencias (Foreign Keys restrictivas)
             throw new Exception("Error al eliminar. ¿El usuario tiene registros (ventas/stock) vinculados?");
         }
     }
