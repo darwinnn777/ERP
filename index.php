@@ -1,11 +1,11 @@
 <?php
 /*
-Controlador frontal: punto de entrada para la aplicación MVC
+Controlador frontal: punto de entrada para la aplicación 
 */
 session_start();
 
 
-require_once 'config/functions.php'; // Agregado para que las funciones estén disponibles en todo el MVC
+require_once 'config/functions.php'; 
 require_once 'app/Core/Router.php';
 
 $router = new Router();
