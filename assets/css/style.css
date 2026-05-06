@@ -158,3 +158,22 @@ no quede centrada como el login*/
 .pulse {
     animation: pulse-red 2s infinite;
 }
+
+/* LOGIN: panel izquierdo */
+.login-left {
+    width: 28%;
+    background-color: #0f1623;
+}
+
+.login-divider {
+    width: 40px;
+    height: 3px;
+    background-color: var(--color-bakery);
+    border-radius: 2px;
+}
+
+.login-tagline {
+    color: #8a9abf;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
