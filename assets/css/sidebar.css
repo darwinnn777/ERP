@@ -1,0 +1,166 @@
+:root {
+    --sidebar-width: 240px;
+    --topbar-height: 60px;
+    --sidebar-bg: #1a1f2e;
+    --sidebar-text: #a0aec0;
+}
+
+/* Override del body global (el login usa sus propios estilos) */
+body {
+    background-color: #f0f2f5 !important;
+    display: block !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* ── TOPBAR ─────────────────────────────────────────────── */
+.topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--topbar-height);
+    background-color: var(--color-bakery) !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1030;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.topbar-brand {
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.topbar-brand:hover {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.topbar-avatar {
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ── SIDEBAR ─────────────────────────────────────────────── */
+#sidebar {
+    position: fixed;
+    top: var(--topbar-height);
+    left: 0;
+    width: var(--sidebar-width);
+    height: calc(100vh - var(--topbar-height));
+    background: var(--sidebar-bg);
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: width 0.25s ease;
+    z-index: 1020;
+    display: flex;
+    flex-direction: column;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 0.75rem 0;
+}
+
+.sidebar-section {
+    font-size: 0.63rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    color: #4a5568;
+    padding: 1.1rem 1.25rem 0.35rem;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 1.25rem;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+    border-left: 3px solid transparent;
+}
+
+.sidebar-link:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+}
+
+.sidebar-link.active {
+    background: rgba(163, 93, 69, 0.25);
+    color: #fff;
+    font-weight: 600;
+    border-left-color: var(--color-bakery);
+}
+
+.sidebar-link i {
+    font-size: 1rem;
+    width: 1.1rem;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.sidebar-footer {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    color: var(--sidebar-text);
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+/* ── CONTENIDO PRINCIPAL ─────────────────────────────────── */
+#main-content {
+    margin-left: var(--sidebar-width);
+    margin-top: var(--topbar-height);
+    padding: 1.75rem;
+    min-height: calc(100vh - var(--topbar-height));
+    transition: margin-left 0.25s ease;
+}
+
+/* ── SIDEBAR COLAPSADO ───────────────────────────────────── */
+body.sidebar-collapsed #sidebar {
+    width: 0;
+}
+
+body.sidebar-collapsed #main-content {
+    margin-left: 0;
+}
+
+/* ── RESPONSIVE MÓVIL ────────────────────────────────────── */
+@media (max-width: 768px) {
+    #sidebar {
+        width: 0;
+        box-shadow: none;
+    }
+
+    body.sidebar-open #sidebar {
+        width: var(--sidebar-width);
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.35);
+    }
+
+    #main-content {
+        margin-left: 0 !important;
+    }
+}
