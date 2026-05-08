@@ -1,10 +1,8 @@
 <?php
-// Datos del usuario activo desde sesión
 $_s_user = $_SESSION['full_name'] ?? $_SESSION['usuario'] ?? 'Usuario';
 $_s_role = get_user_role();
 $_s_uri  = $_SERVER['REQUEST_URI'];
 
-// Comprueba si la URL actual contiene el segmento dado
 function sidebar_active(string $segment): string {
     global $_s_uri;
     return (strpos($_s_uri, $segment) !== false) ? 'active' : '';
@@ -25,7 +23,6 @@ function sidebar_active(string $segment): string {
 </head>
 <body>
 
-<!-- ── TOPBAR ──────────────────────────────────────────────── -->
 <header class="topbar">
     <div class="d-flex align-items-center gap-3 ps-3">
         <button id="sidebarToggle" class="btn btn-link text-white p-0 fs-4 lh-1" title="Menú">
@@ -48,7 +45,6 @@ function sidebar_active(string $segment): string {
     </div>
 </header>
 
-<!-- ── SIDEBAR ─────────────────────────────────────────────── -->
 <div id="sidebar">
     <nav class="sidebar-nav">
 
@@ -101,5 +97,4 @@ function sidebar_active(string $segment): string {
     </div>
 </div>
 
-<!-- ── CONTENIDO ───────────────────────────────────────────── -->
 <main id="main-content">

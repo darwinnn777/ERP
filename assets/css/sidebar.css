@@ -5,7 +5,7 @@
     --sidebar-text: #a0aec0;
 }
 
-/* Override del body global (el login usa sus propios estilos) */
+/* El login centra el body con flexbox; aquí se revierte para el layout de app */
 body {
     background-color: #f0f2f5 !important;
     display: block !important;
@@ -14,7 +14,7 @@ body {
     margin: 0 !important;
 }
 
-/* ── TOPBAR ─────────────────────────────────────────────── */
+
 .topbar {
     position: fixed;
     top: 0;
@@ -57,7 +57,7 @@ body {
     border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-/* ── SIDEBAR ─────────────────────────────────────────────── */
+
 #sidebar {
     position: fixed;
     top: var(--topbar-height);
@@ -130,7 +130,7 @@ body {
     white-space: nowrap;
 }
 
-/* ── CONTENIDO PRINCIPAL ─────────────────────────────────── */
+
 #main-content {
     margin-left: var(--sidebar-width);
     margin-top: var(--topbar-height);
@@ -139,7 +139,7 @@ body {
     transition: margin-left 0.25s ease;
 }
 
-/* ── SIDEBAR COLAPSADO ───────────────────────────────────── */
+
 body.sidebar-collapsed #sidebar {
     width: 0;
 }
@@ -148,7 +148,7 @@ body.sidebar-collapsed #main-content {
     margin-left: 0;
 }
 
-/* ── RESPONSIVE MÓVIL ────────────────────────────────────── */
+
 @media (max-width: 768px) {
     #sidebar {
         width: 0;
