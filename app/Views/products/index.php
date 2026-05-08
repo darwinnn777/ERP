@@ -1,27 +1,14 @@
-<?php require_role(['admin', 'obrador']); ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo - ERP Bakery</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <!-- sweetalert2 para sacar las notificaciones bonitas y que no sea el alert feo por defecto -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="assets/css/style.css">
-</head>
-<body class="admin-layout">
+<?php
+require_role(['admin', 'obrador']);
+$page_title = 'Catálogo - ERP Bakery';
+require_once __DIR__ . '/../../layouts/sidebar.php';
+?>
 
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4 mt-4">
-        <h2 class="text-bakery fw-bold">Catálogo de Productos <span class="badge bg-success fs-6">AJAX</span></h2>
-        <a href="dashboard" class="btn btn-outline-secondary rounded-pill">Volver al Dashboard</a>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold text-bakery mb-0">Catálogo de Productos <span class="badge bg-success">AJAX</span></h4>
     </div>
 
-    <!-- El alert PHP fue eliminado. ¡AJAX se encarga de avisar de los errores o éxitos! -->
-
-    <!-- Este es el formulario rápido para añadir productos por arriba -->
     <div class="card card-login mb-4">
         <div class="card-body p-4">
             <form action="productos/save" method="POST" class="row g-2 ajax-form">
@@ -49,7 +36,6 @@
         </div>
     </div>
 
-    <!-- El buscador mágico. Escribes y va escondiendo lo que no cuadra (todo por JS, sin BD) -->
     <div class="mb-4">
         <input type="text" id="liveSearch" class="form-control rounded-pill shadow-sm px-4" placeholder="Buscar por nombre, ingrediente o SKU...">
     </div>
@@ -69,29 +55,27 @@
                     </tr>
                 </thead>
                 <tbody class="text-center bg-white" id="productsTable">
-                <!-- Por cada producto de la base de datos, pintamos una fila en la tabla -->
-                <?php foreach ($all_products as $p): 
+                <?php foreach ($all_products as $p):
                     $img_src = !empty($p['image_url']) ? "assets/" . $p['image_url'] : "assets/img/no-image.png";
                 ?>
                     <tr class="product-item">
                         <td class="sku-text text-muted small"><?= $p['sku'] ?></td>
                         <td>
-                            <!-- Aquí va la foto. Si le das al botón de "más", te abre el modal para cambiarla -->
                             <div class="position-relative d-inline-block" style="width: 45px; height: 45px;">
                                 <?php if (strpos($img_src, 'no-image.png') !== false): ?>
-                                    <button class="btn btn-bakery btn-sm rounded-circle position-absolute top-50 start-50 translate-middle p-0 border border-white shadow-sm" 
+                                    <button class="btn btn-bakery btn-sm rounded-circle position-absolute top-50 start-50 translate-middle p-0 border border-white shadow-sm"
                                             style="width:30px; height:30px;"
-                                            onclick="prepare_image_modal(<?= $p['id'] ?>)" 
-                                            data-bs-toggle="modal" 
+                                            onclick="prepare_image_modal(<?= $p['id'] ?>)"
+                                            data-bs-toggle="modal"
                                             data-bs-target="#imageModal">
                                         <i class="bi bi-plus-lg" style="font-size: 16px;"></i>
                                     </button>
                                 <?php else: ?>
                                     <img src="<?= $img_src ?>" width="45" height="45" class="rounded border shadow-sm" style="object-fit: cover;">
-                                    <button class="btn btn-bakery btn-sm rounded-circle position-absolute top-100 start-100 translate-middle p-0 border border-white shadow-sm" 
+                                    <button class="btn btn-bakery btn-sm rounded-circle position-absolute top-100 start-100 translate-middle p-0 border border-white shadow-sm"
                                             style="width:22px; height:22px;"
-                                            onclick="prepare_image_modal(<?= $p['id'] ?>)" 
-                                            data-bs-toggle="modal" 
+                                            onclick="prepare_image_modal(<?= $p['id'] ?>)"
+                                            data-bs-toggle="modal"
                                             data-bs-target="#imageModal">
                                         <i class="bi bi-plus-lg" style="font-size: 12px;"></i>
                                     </button>
@@ -100,34 +84,29 @@
                         </td>
                         <td class="text-start fw-bold name-text"><?= $p['name'] ?></td>
                         <td>
-                            <!-- Si es producto final, le ponemos una etiqueta distinta que si es un ingrediente -->
                             <span class="badge rounded-pill <?= ($p['product_type'] === 'Final Product') ? 'badge-final' : 'badge-ingredient' ?>">
                                 <?= $product_types[$p['product_type']] ?? $p['product_type'] ?>
                             </span>
                         </td>
                         <td class="small"><?= $units[$p['unit_of_measure']] ?? $p['unit_of_measure'] ?></td>
                         <td class="text-nowrap small">
-                            <span class="text-danger fw-bold"><?= number_format($p['price_buy'], 2) ?></span> / 
+                            <span class="text-danger fw-bold"><?= number_format($p['price_buy'], 2) ?></span> /
                             <span class="text-success fw-bold"><?= number_format($p['price_sell'], 2) ?></span>
                         </td>
                         <td>
-                            <!-- Botón de los tres puntitos para desplegar las opciones -->
                             <div class="dropdown">
                                 <button class="btn btn-link text-dark p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots-vertical fs-5"></i></button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
-                                    <!-- Si es producto final, sale el botón para ver su receta. Si es harina, no. -->
                                     <?php if ($p['product_type'] === 'Final Product'): ?>
                                         <li><a class="dropdown-item py-2" href="recipe?id=<?= $p['id'] ?>"><i class="bi bi-journal-text me-2 text-bakery"></i> Ver Receta</a></li>
                                         <li><hr class="dropdown-divider"></li>
                                     <?php endif; ?>
                                     <li>
-                                        <!-- Al dar a editar, pasamos todos los datos del producto al modal mágico por JS -->
                                         <button class="dropdown-item py-2" onclick='prepare_edit_modal(<?= json_encode($p) ?>)' data-bs-toggle="modal" data-bs-target="#editModal">
                                             <i class="bi bi-pencil me-2 text-primary"></i> Editar producto
                                         </button>
                                     </li>
                                     <li>
-                                        <!-- Formulario escondido para borrar por AJAX (con alerta SweetAlert de confirmación) -->
                                         <form action="productos/delete" method="POST" class="ajax-form delete-form">
                                             <input type="hidden" name="id" value="<?= $p['id'] ?>">
                                             <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
@@ -147,7 +126,7 @@
     </div>
 </div>
 
-<!-- Modal Editar: Esta ventana oculta se rellena por JavaScript cuando le das a Editar a un producto -->
+<!-- Modal Editar -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 rounded-4 shadow">
@@ -155,7 +134,6 @@
                 <h5 class="modal-title fw-bold">Editar Producto</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <!-- También funciona por AJAX para guardar sin recargar -->
             <form action="productos/save" method="POST" class="ajax-form">
                 <div class="modal-body p-4">
                     <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
@@ -189,17 +167,15 @@
     </div>
 </div>
 
-<!-- Modal Subir Imagen: La ventanita para elegir el archivo de la foto -->
+<!-- Modal Imagen -->
 <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content border-0 rounded-4 shadow text-center">
-            <!-- Funciona por AJAX y soporta subida de archivos (enctype="multipart/form-data") -->
             <form action="productos/upload-image" method="POST" enctype="multipart/form-data" class="ajax-form">
                 <div class="modal-body p-4">
                     <input type="hidden" name="id" id="modal_product_id">
                     <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                     <h6 class="fw-bold text-bakery mb-3">Actualizar Imagen</h6>
-                    <!-- Solo aceptamos imágenes, nada de vídeos o PDFs -->
                     <input type="file" name="product_image" class="form-control" accept="image/*" required>
                 </div>
                 <div class="modal-footer border-0 pb-4"><button type="submit" class="btn btn-bakery w-100 rounded-pill">Subir</button></div>
@@ -208,127 +184,68 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// Filtro Live Search: Cuando escribes en el buscador, oculta las filas que no coinciden
 document.getElementById('liveSearch').addEventListener('input', function(e) {
     let term = e.target.value.toLowerCase();
     document.querySelectorAll('.product-item').forEach(row => {
         let name = row.querySelector('.name-text').textContent.toLowerCase();
-        let sku = row.querySelector('.sku-text').textContent.toLowerCase();
+        let sku  = row.querySelector('.sku-text').textContent.toLowerCase();
         row.style.display = (name.includes(term) || sku.includes(term)) ? '' : 'none';
     });
 });
 
-// Función para rellenar el modal de Editar con los datos del producto que has pinchado
 function prepare_edit_modal(p) {
-    document.getElementById('edit_id').value = p.id;
-    document.getElementById('edit_sku').value = p.sku;
+    document.getElementById('edit_id').value   = p.id;
+    document.getElementById('edit_sku').value  = p.sku;
     document.getElementById('edit_name').value = p.name;
     document.getElementById('edit_unit').value = p.unit_of_measure;
     document.getElementById('edit_type').value = p.product_type;
-    document.getElementById('edit_buy').value = p.price_buy;
+    document.getElementById('edit_buy').value  = p.price_buy;
     document.getElementById('edit_sell').value = p.price_sell;
 }
 
-// Le pasa la ID del producto al modal de la imagen para saber a quién se la estamos subiendo
 function prepare_image_modal(id) {
     document.getElementById('modal_product_id').value = id;
 }
 
-
-// LOGICA AJAX GLOBAL (Fetch API) - Esta es para que nada recargue la página
-
-
-// Para los botones de eliminar (interceptamos el click y pedimos confirmación)
 document.querySelectorAll('.btn-delete').forEach(btn => {
     btn.addEventListener('click', function() {
         const form = this.closest('form');
-        
         Swal.fire({
-            title: '¿Estás seguro?',
-            text: "¡No podrás revertir esto!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Sí, bórralo',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Si confirmó, disparamos el AJAX de verdad
-                submitAjaxForm(form);
-            }
-        })
+            title: '¿Estás seguro?', text: "¡No podrás revertir esto!", icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, bórralo', cancelButtonText: 'Cancelar'
+        }).then(result => { if (result.isConfirmed) submitAjaxForm(form); });
     });
 });
 
-// Para todos los demás formularios (crear, editar, subir foto)
 document.querySelectorAll('.ajax-form:not(.delete-form)').forEach(form => {
-    form.addEventListener('submit', function(e) {
-        e.preventDefault(); // Cortamos el envío normal por el navegador
-        submitAjaxForm(this);
-    });
+    form.addEventListener('submit', function(e) { e.preventDefault(); submitAjaxForm(this); });
 });
 
-// Función central que envía los datos al servidor por detrás y saca la alerta al terminar
 function submitAjaxForm(formElement) {
-    const formData = new FormData(formElement);
+    const formData  = new FormData(formElement);
     const actionUrl = formElement.getAttribute('action');
-
-    // Cambiamos el texto del botón a "Procesando..." para quedar pro
     const btnSubmit = formElement.querySelector('button[type="submit"]');
     let originalText = '';
-    if(btnSubmit) {
+    if (btnSubmit) {
         originalText = btnSubmit.innerHTML;
         btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Procesando...';
         btnSubmit.disabled = true;
     }
-
-    // El Fetch se encarga de hablar con el PHP
-    fetch(actionUrl, {
-        method: 'POST',
-        body: formData // Esto pilla tanto los inputs como los archivos (fotos)
-    })
-    .then(response => response.json()) // Esperamos que PHP nos devuelva un JSON (success: true/false)
+    fetch(actionUrl, { method: 'POST', body: formData })
+    .then(r => r.json())
     .then(data => {
         if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: '¡Éxito!',
-                text: data.message,
-                timer: 1500,
-                showConfirmButton: false
-            }).then(() => {
-                // De momento, recargamos para que se vean los cambios en la tabla
-                location.reload(); 
-            });
+            Swal.fire({ icon: 'success', title: '¡Éxito!', text: data.message, timer: 1500, showConfirmButton: false })
+            .then(() => location.reload());
         } else {
-            // Si el servidor se queja, sacamos el error en rojo
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: data.message
-            });
+            Swal.fire({ icon: 'error', title: 'Error', text: data.message });
         }
     })
-    .catch(error => {
-        // Por si algo gordo falla (no hay internet, etc)
-        console.error('Error:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error de Red',
-            text: 'Ocurrió un error al contactar con el servidor.'
-        });
-    })
-    .finally(() => {
-        // Al terminar, devolvemos el botón a la normalidad
-        if(btnSubmit) {
-            btnSubmit.innerHTML = originalText;
-            btnSubmit.disabled = false;
-        }
-    });
+    .catch(() => Swal.fire({ icon: 'error', title: 'Error de Red', text: 'Ocurrió un error al contactar con el servidor.' }))
+    .finally(() => { if (btnSubmit) { btnSubmit.innerHTML = originalText; btnSubmit.disabled = false; } });
 }
 </script>
-</body>
-</html>
+
+<?php require_once __DIR__ . '/../../layouts/footer.php'; ?>
