@@ -1,7 +1,7 @@
 <?php
 require_role(['admin', 'obrador']);
 $page_title = 'Receta - ' . sanitize_input($main_product['name']) . ' - ERP Bakery';
-require_once __DIR__ . '/../../layouts/sidebar.php';
+require_once __DIR__ . '/../layouts/sidebar.php';
 ?>
 
 <div class="container-fluid">
@@ -133,4 +133,4 @@ document.querySelectorAll('.btn-delete').forEach(btn => {
 });
 </script>
 
-<?php require_once __DIR__ . '/../../layouts/footer.php'; ?>
+<?php require_once __DIR__ . '/../layouts/footer.php'; ?>

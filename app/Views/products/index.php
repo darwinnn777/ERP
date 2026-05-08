@@ -1,7 +1,7 @@
 <?php
 require_role(['admin', 'obrador']);
 $page_title = 'Catálogo - ERP Bakery';
-require_once __DIR__ . '/../../layouts/sidebar.php';
+require_once __DIR__ . '/../layouts/sidebar.php';
 ?>
 
 <div class="container-fluid">
@@ -248,4 +248,4 @@ function submitAjaxForm(formElement) {
 }
 </script>
 
-<?php require_once __DIR__ . '/../../layouts/footer.php'; ?>
+<?php require_once __DIR__ . '/../layouts/footer.php'; ?>

@@ -1,6 +1,6 @@
 <?php
 $page_title = 'Panel Principal - ERP Bakery';
-require_once __DIR__ . '/../../layouts/sidebar.php';
+require_once __DIR__ . '/../layouts/sidebar.php';
 ?>
 
 <div class="container-fluid">
@@ -82,4 +82,4 @@ require_once __DIR__ . '/../../layouts/sidebar.php';
     </div>
 </div>
 
-<?php require_once __DIR__ . '/../../layouts/footer.php'; ?>
+<?php require_once __DIR__ . '/../layouts/footer.php'; ?>

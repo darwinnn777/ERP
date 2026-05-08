@@ -1,7 +1,7 @@
 <?php
 require_role(['admin', 'obrador', 'dependiente']);
 $page_title = 'Stock - ERP Bakery';
-require_once __DIR__ . '/../../layouts/sidebar.php';
+require_once __DIR__ . '/../layouts/sidebar.php';
 ?>
 
 <div class="container-fluid">
@@ -117,4 +117,4 @@ document.querySelectorAll('.btn-discount').forEach(btn => {
 });
 </script>
 
-<?php require_once __DIR__ . '/../../layouts/footer.php'; ?>
+<?php require_once __DIR__ . '/../layouts/footer.php'; ?>

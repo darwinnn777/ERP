@@ -1,7 +1,7 @@
 <?php
 require_role('admin');
 $page_title = 'Gestión de Usuarios - ERP Bakery';
-require_once __DIR__ . '/../../layouts/sidebar.php';
+require_once __DIR__ . '/../layouts/sidebar.php';
 ?>
 
 <div class="container-fluid">
@@ -294,4 +294,4 @@ document.querySelectorAll('.btn-delete').forEach(btn => {
 });
 </script>
 
-<?php require_once __DIR__ . '/../../layouts/footer.php'; ?>
+<?php require_once __DIR__ . '/../layouts/footer.php'; ?>
