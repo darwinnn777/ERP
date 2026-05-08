@@ -1,49 +1,14 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Principal - ERP Bakery (MVC)</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css">
-    <base href="<?= BASE_URL ?>">
-</head>
-<body class="admin-layout">
+<?php
+$page_title = 'Panel Principal - ERP Bakery';
+require_once __DIR__ . '/../../layouts/sidebar.php';
+?>
 
-<nav class="navbar navbar-expand-lg navbar-dark shadow-sm navbar-dashboard" style="background-color: var(--color-bakery);">
-    <div class="container">
-        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="dashboard">
-            <img src="assets/img_products/logo.png" alt="Logo ERP Bakery" class="navbar-logo">
-            ERP Bakery
-        </a>
-
-        <div class="d-flex align-items-center gap-3 text-white">
-            <div class="text-end d-none d-md-block">
-                <!-- Pintamos el nombre del usuario y su rol bien grande -->
-                <div class="fw-semibold" style="font-size: 0.9rem;"><?= sanitize_input($nombre_usu) ?></div>
-                <span class="badge-rol"><?= strtoupper($rol_actual) ?></span>
-            </div>
-            
-            <!-- El botón de salir ahora es un mini-formulario por temas de seguridad (token CSRF) -->
-            <form action="logout" method="GET" class="m-0">
-                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                <button type="submit" class="btn btn-sm btn-outline-light rounded-pill px-3" onclick="return confirm('¿Cerrar sesión?');">
-                    Cerrar sesión
-                </button>
-            </form>
-        </div>
-    </div>
-</nav>
-
-<div class="container mt-5">
+<div class="container-fluid">
     <div class="mb-4">
-        <h2 class="fw-bold text-bakery">Panel de Control</h2>
-        <p class="text-muted">Bienvenido, <strong><?= sanitize_input($nombre_usu) ?></strong>. Selecciona un módulo para empezar.</p>
-        <hr>
+        <h4 class="fw-bold text-bakery mb-0">Panel de Control</h4>
+        <p class="text-muted small mb-0">Bienvenido, <strong><?= sanitize_input($nombre_usu) ?></strong>.</p>
     </div>
 
-    <!-- Si eres admin o de obrador, Y ADEMÁS faltan cosas en el almacén, te sacamos la alerta naranja -->
     <?php if (($rol_actual == 'admin' || $rol_actual == 'obrador') && $alertas_stock > 0): ?>
         <div class="alert d-flex justify-content-between align-items-center mb-4 stock-alert-custom">
             <span><i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i> <strong>Atención:</strong> Hay <?= $alertas_stock ?> lote(s) con stock bajo.</span>
@@ -52,8 +17,7 @@
     <?php endif; ?>
 
     <div class="row g-4">
-        
-        <!-- Estas dos tarjetas solo las ven los jefes y los del obrador (cocina) -->
+
         <?php if ($rol_actual == 'admin' || $rol_actual == 'obrador'): ?>
         <div class="col-md-4">
             <div class="card h-100 shadow-sm module-card">
@@ -78,7 +42,6 @@
         </div>
         <?php endif; ?>
 
-        <!-- El TPV (la caja para cobrar) lo ven los dependientes y los jefes -->
         <?php if ($rol_actual == 'admin' || $rol_actual == 'dependiente'): ?>
         <div class="col-md-4">
             <div class="card h-100 shadow-sm module-card">
@@ -92,7 +55,6 @@
         </div>
         <?php endif; ?>
 
-        <!-- Las cosas serias de personal y compras, solo para el admin -->
         <?php if ($rol_actual == 'admin'): ?>
         <div class="col-md-4">
             <div class="card h-100 shadow-sm module-card">
@@ -116,9 +78,8 @@
             </div>
         </div>
         <?php endif; ?>
+
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<?php require_once __DIR__ . '/../../layouts/footer.php'; ?>
