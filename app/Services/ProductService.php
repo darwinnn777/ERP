@@ -41,20 +41,26 @@ class ProductService {
         }
     }
 
-    // La función que se encarga del follón de las imágenes
+    // Gestión segura de subida de imágenes de producto
     public function uploadImage($productId, $fileArray) {
-        // Si no hay foto, o hubo error al subirla, a casa
+        // Validar que se recibió un archivo válido sin errores de subida
         if ($productId <= 0 || !isset($fileArray) || $fileArray['error'] !== 0) {
             throw new Exception("No se recibió ninguna imagen válida.");
         }
 
-        // Si la carpeta de imágenes no existe, la creamos
-        $directory = "assets/img_products/"; 
-        if (!is_dir($directory)) {
-            mkdir($directory, 0777, true);
+        // Límite de tamaño: 2 MB máximo para evitar abuso del servidor
+        $maxSize = 2 * 1024 * 1024; // 2 MB
+        if ($fileArray['size'] > $maxSize) {
+            throw new Exception("La imagen es demasiado grande. Máximo 2 MB.");
         }
 
-        // Antes de subir la nueva foto, borramos la vieja para no llenar el disco duro a lo tonto
+        // Si la carpeta de imágenes no existe, la creamos con permisos seguros
+        $directory = "assets/img_products/"; 
+        if (!is_dir($directory)) {
+            mkdir($directory, 0755, true);
+        }
+
+        // Antes de subir la nueva foto, borramos la anterior para no acumular archivos
         $oldProduct = $this->productModel->getProductById($productId);
         if ($oldProduct && !empty($oldProduct['image_url'])) {
             $oldPath = "assets/" . $oldProduct['image_url'];
@@ -63,23 +69,32 @@ class ProductService {
             }
         }
 
-        // Pillamos los datos de la foto nueva
+        // Obtenemos los datos del archivo subido
         $image_name = $fileArray["name"];
         $tmp_name = $fileArray["tmp_name"];
         $extension = strtolower(pathinfo($image_name, PATHINFO_EXTENSION));
-        // Lista VIP de extensiones permitidas
+        // Extensiones de imagen permitidas
         $allowed_extensions = ['jpg', 'jpeg', 'png', 'webp'];
 
-        // Si intentan subir un PDF o un virus... ¡Alto ahí!
+        // Validación 1: comprobar la extensión del archivo
         if (!in_array($extension, $allowed_extensions)) {
             throw new Exception("Formato inválido. Solo JPG, PNG, WEBP.");
         }
 
-        // Le ponemos un nombre único inventado (prod_1234.jpg) para que no haya dos iguales
+        // Validación 2: comprobar el tipo MIME real del contenido del archivo
+        // Esto previene que alguien renombre un archivo .php a .jpg
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->file($tmp_name);
+        $allowed_mimes = ['image/jpeg', 'image/png', 'image/webp'];
+        if (!in_array($mimeType, $allowed_mimes)) {
+            throw new Exception("El archivo no es una imagen válida.");
+        }
+
+        // Generamos un nombre único para evitar colisiones
         $relativePath = "img_products/" . uniqid('prod_') . "." . $extension;
         $fullPath = "assets/" . $relativePath;
 
-        // Movemos la foto de su escondite temporal a la carpeta oficial
+        // Movemos la imagen del directorio temporal al destino final
         if (move_uploaded_file($tmp_name, $fullPath)) {
             // Guardamos la ruta nueva en la base de datos
             $this->productModel->updateImage($productId, $relativePath);
