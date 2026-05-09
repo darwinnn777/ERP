@@ -33,6 +33,19 @@ require_once __DIR__ . '/../layouts/sidebar.php';
         <div class="col-md-4">
             <div class="card h-100 shadow-sm module-card">
                 <div class="card-body p-4">
+                    <div class="card-icon-wrap" style="background-color: rgba(108, 117, 125, 0.12); color: #6c757d;">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Historial de Stock</h5>
+                    <p class="card-text text-muted">Consulta de lotes caducados y seguimiento de rotación.</p>
+                    <a href="stock/history" class="btn btn-outline-secondary w-100 rounded-pill mt-2">Ver Historial</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm module-card">
+                <div class="card-body p-4">
                     <div class="card-icon-wrap"><i class="bi bi-journal-richtext"></i></div>
                     <h5 class="card-title fw-bold">Catálogo y Recetas</h5>
                     <p class="card-text text-muted">Administración de productos, ingredientes y fórmulas.</p>

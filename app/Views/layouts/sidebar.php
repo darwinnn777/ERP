@@ -14,12 +14,12 @@ function sidebar_active(string $segment): string {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= isset($page_title) ? htmlspecialchars($page_title) : 'ERP Bakery' ?></title>
+    <base href="<?= BASE_URL ?>">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/sidebar.css">
-    <base href="<?= BASE_URL ?>">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/sidebar.css">
 </head>
 <body>
 
@@ -57,6 +57,9 @@ function sidebar_active(string $segment): string {
         <div class="sidebar-section">Produccion</div>
         <a href="stock" class="sidebar-link <?= sidebar_active('stock') ?>">
             <i class="bi bi-box-seam-fill"></i> Gestion de Stock
+        </a>
+        <a href="stock/history" class="sidebar-link <?= sidebar_active('stock/history') ?>">
+            <i class="bi bi-clock-history"></i> Historial de Stock
         </a>
         <a href="productos" class="sidebar-link <?= (strpos($_s_uri, 'productos') !== false || strpos($_s_uri, 'recipe') !== false) ? 'active' : '' ?>">
             <i class="bi bi-journal-richtext"></i> Catalogo y Recetas

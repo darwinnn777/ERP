@@ -150,6 +150,7 @@ function get_units() {
         'ud' => 'Unidades (ud)'
     ];
 }
+
 //9.Tipos de producto
 function get_product_types() {
     return [

@@ -30,6 +30,7 @@ $router->post('productos/upload-image', 'ProductController@uploadImage');
 
 // Stock
 $router->get('stock', 'StockController@index');
+$router->get('stock/history', 'StockController@history');
 $router->post('stock/discount', 'StockController@applyDiscount');
 
 // TPV (Point of Sale)

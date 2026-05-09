@@ -13,15 +13,43 @@ class StockController {
     public function index() {
         require_role(['admin', 'obrador', 'dependiente']);
         
-        // Le pedimos al modelo que nos traiga todo lo que hay en  el inventario
+        // Pedir al modelo el inventario completo
         $inventory = $this->stockModel->getInventory();
-        
-        // Y se lo escupimos a la vista
+
+        $inventoryActive  = [];
+        foreach ($inventory as $row) {
+            $daysLeft = $row['days_left'];
+            $isExpired = $daysLeft !== null && $daysLeft !== '' && (int) $daysLeft < 0;
+            if (!$isExpired) {
+                $inventoryActive[] = $row;
+            }
+        }
+
+        // Cargar vista principal de stock
         require_once 'app/Views/stock/index.php';
     }
 
+    public function history() {
+        require_role(['admin', 'obrador', 'dependiente']);
+
+        // Pedir al modelo los lotes con caducidad vencida
+        $inventory = $this->stockModel->getInventory();
+
+        $inventoryHistory = [];
+        foreach ($inventory as $row) {
+            $daysLeft = $row['days_left'];
+            $isExpired = $daysLeft !== null && $daysLeft !== '' && (int) $daysLeft < 0;
+            if ($isExpired) {
+                $inventoryHistory[] = $row;
+            }
+        }
+
+        // Cargar vista de historial de stock
+        require_once 'app/Views/stock/stock_history.php';
+    }
+
     public function applyDiscount() {
-        // Vamos a devolver un JSON, que esto va por AJAX (sin recargar la página)
+        // Devolver respuesta JSON para peticiones de descuento
         header('Content-Type: application/json');
         
         // el hachazo del 50% solo lo puede meter el admin

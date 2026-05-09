@@ -7,7 +7,7 @@ require_once __DIR__ . '/../layouts/sidebar.php';
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold mb-0">Órdenes de Compra <span class="badge bg-success">AJAX</span></h4>
+            <h4 class="fw-bold mb-0">Órdenes de Compra</h4>
             <p class="text-muted small mb-0">Gestión de pedidos y flujo de entrada de mercancía</p>
         </div>
         <button class="btn btn-bakery px-4 rounded-pill fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#newOrderModal">

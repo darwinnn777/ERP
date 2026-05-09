@@ -21,8 +21,22 @@ class StockModel extends Model {
             FROM public.stock_lots sl
             JOIN public.products p ON sl.product_id = p.id
             JOIN public.warehouses w ON sl.warehouse_id = w.id
-            -- Ordenamos para que lo más pocho (lo que caduca antes) salga lo primerito
-            ORDER BY sl.expiration_date DESC NULLS LAST";
+            WHERE NOT (p.product_type = 'Final Product' AND sl.quantity <= 0)
+            -- Perennes arriba; vigentes FIFO (caduca antes = antes); caducados al final (historial reciente primero)
+            ORDER BY
+                CASE
+                    WHEN sl.expiration_date IS NULL THEN 0
+                    WHEN sl.expiration_date < CURRENT_DATE THEN 2
+                    ELSE 1
+                END,
+                CASE
+                    WHEN sl.expiration_date IS NULL OR sl.expiration_date >= CURRENT_DATE THEN sl.expiration_date
+                END ASC NULLS FIRST,
+                CASE
+                    WHEN sl.expiration_date < CURRENT_DATE THEN sl.expiration_date
+                END DESC NULLS LAST,
+                p.name ASC,
+                sl.id ASC";
                 
         $stmt = $this->db->prepare($sql);
         $stmt->execute();

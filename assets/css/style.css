@@ -177,3 +177,25 @@ no quede centrada como el login*/
     font-size: 0.9rem;
     line-height: 1.6;
 }
+
+/* Recepción de mercancía */
+.receive-goods-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.15rem;
+}
+
+.receive-goods-card .receive-input-qty {
+    max-width: 6.5rem;
+    min-width: 5rem;
+}
+
+.receive-goods-card .receive-input-lot {
+    max-width: 14rem;
+    min-width: 8rem;
+}
+
+.receive-goods-card .receive-input-date {
+    max-width: 11rem;
+    min-width: 9.5rem;
+}

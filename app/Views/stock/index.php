@@ -7,9 +7,14 @@ require_once __DIR__ . '/../layouts/sidebar.php';
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold text-bakery mb-0">Control de Inventario <span class="badge bg-success">AJAX</span></h4>
+            <h4 class="fw-bold text-bakery mb-0">Control de Inventario</h4>
             <p class="text-muted small mb-0">Visualización de lotes y caducidades</p>
         </div>
+    </div>
+
+    <div class="mb-4">
+        <input type="text" id="stock_live_search" class="form-control rounded-pill shadow-sm px-4"
+               placeholder="Buscar por producto, lote, almacén o medida..." onkeyup="filterStockTable()">
     </div>
 
     <div class="card card-login border-0 shadow-sm rounded-4 overflow-hidden">
@@ -20,43 +25,50 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                         <th class="px-4 text-start">Producto</th>
                         <th>Almacén</th>
                         <th>Stock</th>
+                        <th>Medida</th>
                         <th>Caducidad</th>
                         <th class="text-end px-4">Estado</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($inventory as $item):
-                        $days    = $item['days_left'];
+                    <?php foreach ($inventoryActive as $item):
+                        $days     = $item['days_left'];
                         $is_final = ($item['product_type'] === 'Final Product');
 
-                        $bg_class = "";
-                        if ($days !== null) {
-                            if ($days <= 3)               $bg_class = "table-danger";
-                            elseif ($days >= 4 && $days <= 7) $bg_class = "table-warning";
-                            else                          $bg_class = "table-success opacity-75";
+                        $bg_class = '';
+                        if ($days !== null && $days !== '') {
+                            if ($days <= 3) {
+                                $bg_class = 'table-danger';
+                            } elseif ($days >= 4 && $days <= 7) {
+                                $bg_class = 'table-warning';
+                            } else {
+                                $bg_class = 'table-success opacity-75';
+                            }
                         }
                     ?>
-                    <tr class="<?= $bg_class ?> text-center">
-                        <td class="px-4 text-start">
+                    <tr class="<?= $bg_class ?> text-center stock-row">
+                        <td class="px-4 text-start product-cell">
                             <div class="fw-bold"><?= sanitize_input($item['product_name']) ?></div>
-                            <div class="text-muted small">Lote: <?= sanitize_input($item['lot_number']) ?></div>
+                            <div class="text-muted small lot-cell">Lote: <?= sanitize_input($item['lot_number']) ?></div>
                         </td>
-                        <td><?= sanitize_input($item['warehouse_name']) ?></td>
-                        <td>
-                            <span class="fw-bold"><?= $item['quantity'] ?></span>
-                            <small class="text-muted"><?= $item['unit_of_measure'] ?></small>
-                        </td>
+                        <td class="warehouse-cell"><?= sanitize_input($item['warehouse_name']) ?></td>
+                        <td class="fw-bold"><?= sanitize_input((string) $item['quantity']) ?></td>
+                        <td class="measure-cell"><?= sanitize_input($item['unit_of_measure'] ?? '') ?></td>
                         <td>
                             <span class="fw-bold"><?= $item['expiration_date'] ? date('d/m/Y', strtotime($item['expiration_date'])) : '--' ?></span>
                         </td>
                         <td class="text-end px-4">
                             <?php
-                            if ($days === null)  echo "<span class='text-muted small'>Perenne</span>";
-                            elseif ($days < 0)   echo "<span class='text-danger fw-bold small'>CADUCADO</span>";
-                            else                 echo "<span class='badge bg-white text-dark border'>$days días</span>";
+                            if ($days === null || $days === '') {
+                                echo "<span class='text-muted small'>Perenne</span>";
+                            } elseif ((int) $days < 0) {
+                                echo "<span class='text-danger fw-bold small'>CADUCADO</span>";
+                            } else {
+                                echo "<span class='badge bg-white text-dark border'>" . (int) $days . " días</span>";
+                            }
                             ?>
 
-                            <?php if (has_role('admin') && $is_final && $days !== null && $days <= 3 && $days >= 0): ?>
+                            <?php if (has_role('admin') && $is_final && $days !== null && $days !== '' && (int) $days <= 3 && (int) $days >= 0): ?>
                                 <?php if ($item['lot_is_discounted']): ?>
                                     <span class="ms-2 badge border border-danger text-danger">-%50 OK</span>
                                 <?php else: ?>
@@ -76,9 +88,62 @@ require_once __DIR__ . '/../layouts/sidebar.php';
             </table>
         </div>
     </div>
+
+    <?php if (!empty($inventoryHistory)): ?>
+    <div class="card border-secondary shadow-sm rounded-4 overflow-hidden mt-4">
+        <div class="card-header bg-secondary bg-opacity-10 border-secondary py-3 px-4">
+            <h6 class="mb-0 text-secondary fw-bold">Historial</h6>
+            <p class="text-muted small mb-0 mt-1">Lotes caducados — solo consulta</p>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover table-secondary align-middle mb-0 bg-opacity-10">
+                <thead class="bg-light">
+                    <tr class="small text-uppercase fw-bold text-secondary text-center">
+                        <th class="px-4 text-start">Producto</th>
+                        <th>Almacén</th>
+                        <th>Stock</th>
+                        <th>Medida</th>
+                        <th>Caducidad</th>
+                        <th class="text-end px-4">Estado</th>
+                    </tr>
+                </thead>
+                <tbody class="text-secondary">
+                    <?php foreach ($inventoryHistory as $item): ?>
+                    <tr class="text-center stock-row">
+                        <td class="px-4 text-start product-cell">
+                            <div class="fw-bold"><?= sanitize_input($item['product_name']) ?></div>
+                            <div class="text-muted small lot-cell">Lote: <?= sanitize_input($item['lot_number']) ?></div>
+                        </td>
+                        <td class="warehouse-cell"><?= sanitize_input($item['warehouse_name']) ?></td>
+                        <td class="fw-bold"><?= sanitize_input((string) $item['quantity']) ?></td>
+                        <td class="measure-cell"><?= sanitize_input($item['unit_of_measure'] ?? '') ?></td>
+                        <td>
+                            <span class="fw-bold"><?= $item['expiration_date'] ? date('d/m/Y', strtotime($item['expiration_date'])) : '--' ?></span>
+                        </td>
+                        <td class="text-end px-4">
+                            <span class="badge bg-secondary">Caducado</span>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <?php endif; ?>
 </div>
 
 <script>
+function filterStockTable() {
+    let filter = document.getElementById('stock_live_search').value.toLowerCase();
+    document.querySelectorAll('.stock-row').forEach(row => {
+        let product = row.querySelector('.product-cell')?.innerText.toLowerCase() || '';
+        let lot = row.querySelector('.lot-cell')?.innerText.toLowerCase() || '';
+        let warehouse = row.querySelector('.warehouse-cell')?.innerText.toLowerCase() || '';
+        let measure = row.querySelector('.measure-cell')?.innerText.toLowerCase() || '';
+        row.style.display = (product.includes(filter) || lot.includes(filter) || warehouse.includes(filter) || measure.includes(filter)) ? '' : 'none';
+    });
+}
+
 document.querySelectorAll('.btn-discount').forEach(btn => {
     btn.addEventListener('click', function() {
         const form = this.closest('form');

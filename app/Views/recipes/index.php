@@ -7,7 +7,7 @@ require_once __DIR__ . '/../layouts/sidebar.php';
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold text-bakery mb-0">Gestión de Receta <span class="badge bg-success">AJAX</span></h4>
+            <h4 class="fw-bold text-bakery mb-0">Gestión de Receta</h4>
             <p class="text-muted mb-0 small">Producto: <strong><?= sanitize_input($main_product['name']) ?></strong> (<?= $main_product['sku'] ?>)</p>
         </div>
         <a href="productos" class="btn btn-outline-secondary btn-sm rounded-pill">← Volver al Catálogo</a>

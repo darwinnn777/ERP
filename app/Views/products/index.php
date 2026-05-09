@@ -6,7 +6,7 @@ require_once __DIR__ . '/../layouts/sidebar.php';
 
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="fw-bold text-bakery mb-0">Catálogo de Productos <span class="badge bg-success">AJAX</span></h4>
+        <h4 class="fw-bold text-bakery mb-0">Catálogo de Productos</h4>
     </div>
 
     <div class="card card-login mb-4">

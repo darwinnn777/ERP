@@ -7,7 +7,7 @@ require_once __DIR__ . '/../layouts/sidebar.php';
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold text-bakery mb-0">Gestión de Personal <span class="badge bg-success">AJAX</span></h4>
+            <h4 class="fw-bold text-bakery mb-0">Gestión de Personal</h4>
             <p class="text-muted small mb-0">Administra los accesos y roles de la panadería.</p>
         </div>
         <button type="button" class="btn btn-bakery rounded-pill px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#addUserModal">

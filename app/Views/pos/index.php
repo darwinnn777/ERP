@@ -7,7 +7,7 @@ require_once __DIR__ . '/../layouts/sidebar.php';
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold text-bakery mb-0">Terminal de Venta (TPV) <span class="badge bg-success">AJAX</span></h4>
+            <h4 class="fw-bold text-bakery mb-0">Terminal de Venta (TPV)</h4>
             <p class="text-muted small mb-0">Seleccione los productos para el pedido actual</p>
         </div>
     </div>
