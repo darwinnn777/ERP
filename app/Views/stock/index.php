@@ -89,51 +89,11 @@ require_once __DIR__ . '/../layouts/sidebar.php';
         </div>
     </div>
 
-    <?php if (!empty($inventoryHistory)): ?>
-    <div class="card border-secondary shadow-sm rounded-4 overflow-hidden mt-4">
-        <div class="card-header bg-secondary bg-opacity-10 border-secondary py-3 px-4">
-            <h6 class="mb-0 text-secondary fw-bold">Historial</h6>
-            <p class="text-muted small mb-0 mt-1">Lotes caducados — solo consulta</p>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-hover table-secondary align-middle mb-0 bg-opacity-10">
-                <thead class="bg-light">
-                    <tr class="small text-uppercase fw-bold text-secondary text-center">
-                        <th class="px-4 text-start">Producto</th>
-                        <th>Almacén</th>
-                        <th>Stock</th>
-                        <th>Medida</th>
-                        <th>Caducidad</th>
-                        <th class="text-end px-4">Estado</th>
-                    </tr>
-                </thead>
-                <tbody class="text-secondary">
-                    <?php foreach ($inventoryHistory as $item): ?>
-                    <tr class="text-center stock-row">
-                        <td class="px-4 text-start product-cell">
-                            <div class="fw-bold"><?= sanitize_input($item['product_name']) ?></div>
-                            <div class="text-muted small lot-cell">Lote: <?= sanitize_input($item['lot_number']) ?></div>
-                        </td>
-                        <td class="warehouse-cell"><?= sanitize_input($item['warehouse_name']) ?></td>
-                        <td class="fw-bold"><?= sanitize_input((string) $item['quantity']) ?></td>
-                        <td class="measure-cell"><?= sanitize_input($item['unit_of_measure'] ?? '') ?></td>
-                        <td>
-                            <span class="fw-bold"><?= $item['expiration_date'] ? date('d/m/Y', strtotime($item['expiration_date'])) : '--' ?></span>
-                        </td>
-                        <td class="text-end px-4">
-                            <span class="badge bg-secondary">Caducado</span>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <?php endif; ?>
 </div>
 
 <script>
 function filterStockTable() {
+    // Filtrar filas por columnas clave del lote
     let filter = document.getElementById('stock_live_search').value.toLowerCase();
     document.querySelectorAll('.stock-row').forEach(row => {
         let product = row.querySelector('.product-cell')?.innerText.toLowerCase() || '';
@@ -146,6 +106,7 @@ function filterStockTable() {
 
 document.querySelectorAll('.btn-discount').forEach(btn => {
     btn.addEventListener('click', function() {
+        // Confirmar acción antes de aplicar descuento
         const form = this.closest('form');
         Swal.fire({
             title: '¿Aplicar descuento?', text: "Se aplicará un 50% de descuento a este lote por caducidad próxima.",

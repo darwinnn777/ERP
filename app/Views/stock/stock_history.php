@@ -83,6 +83,7 @@ require_once __DIR__ . '/../layouts/sidebar.php';
 
 <script>
 function filterStockHistoryTable() {
+    // Filtrar historial por datos principales del lote
     let filter = document.getElementById('stock_history_search').value.toLowerCase();
     document.querySelectorAll('.stock-history-row').forEach(row => {
         let product = row.querySelector('.product-cell')?.innerText.toLowerCase() || '';

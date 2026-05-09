@@ -6,7 +6,7 @@ class StockController {
     private $stockModel;
 
     public function __construct() {
-        // instanciamos el modelo para poder pedirle cositas a la base de datos
+        // Inicializar modelo de stock
         $this->stockModel = new StockModel();
     }
 
@@ -52,33 +52,33 @@ class StockController {
         // Devolver respuesta JSON para peticiones de descuento
         header('Content-Type: application/json');
         
-        // el hachazo del 50% solo lo puede meter el admin
+        // Validar acceso de administrador
         require_role(['admin']);
         
-        // Comprobamos el token de seguridad para ataques CSRF
+        // Validar token CSRF
         csrf_check($_POST['csrf_token'] ?? '');
 
-        // Pillamos el ID del lote que nos llega por POST. Lo forzamos a entero por si las moscas.
+        // Obtener identificador de lote desde POST
         $lotId = (int)($_POST['lot_id'] ?? 0);
         
         if ($lotId > 0) {
             try {
-                // Intentamos aplicar la rebajita en la base de datos
+                // Aplicar descuento sobre el lote seleccionado
                 $changed = $this->stockModel->applyDiscount($lotId);
                 
                 if ($changed) {
-                    // Si se ha actualizado algo
+                    // Informar actualización correcta
                     echo json_encode(['success' => true, 'message' => 'Descuento del 50% aplicado correctamente.']);
                 } else {
-                    // Si no, es que alguien ya le había dado al botón antes
+                    // Informar descuento previamente aplicado
                     echo json_encode(['success' => false, 'message' => 'El descuento ya estaba aplicado.']);
                 }
             } catch (PDOException $e) {
-                // Si la base de datos se cae, avisamos sin romper la web entera
+                // Informar error de base de datos
                 echo json_encode(['success' => false, 'message' => 'Error de base de datos.']);
             }
         } else {
-            // Si nos mandan un ID raro o un 0
+            // Informar identificador no válido
             echo json_encode(['success' => false, 'message' => 'Lote no válido.']);
         }
         exit; 
