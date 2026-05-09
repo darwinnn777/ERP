@@ -77,58 +77,18 @@ function get_user_role(): string {
     return 'invitado';
 }
 
-// 5. Cierra la sesion de forma segura.
-// 5. Log out securely.
-function log_out() {
-            // Si la sesión no se ha iniciado todavía, la abrimos para poder manipularla y cerrarla.
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
 
-        // Limpiamos todas las variables de sesión (usuario, rol, id, etc.) poniéndolas en un array vacío.
-        // Es como vaciar las maletas antes de irte del hotel.
-        $_SESSION = []; 
 
-        //  Este bloque borra la "cookie" de sesión que se guarda en el navegador del usuario.
-        // Si no borras la cookie, el navegador podría intentar reconectarse automáticamente.
-        if (ini_get("session.use_cookies")) {
-            $params = session_get_cookie_params();
-
-            // Seteamos una cookie con el mismo nombre pero que caducó hace 42,000 segundos (en el pasado).
-            // Esto obliga al navegador a borrarla inmediatamente.
-            //Objetivo:
-            //Borrar la cookie por seguridad, para asegurar que el cliente no
-            // mantenga identificadores de sesión obsoletos
-            setcookie(
-                session_name(), 
-                '', 
-                time() - 42000,
-                $params["path"], 
-                $params["domain"],
-                $params["secure"], 
-                $params["httponly"]
-            );
-        }
-
-        // Finalmente, destruimos la sesión en el servidor. 
-        // El servidor olvida que ese usuario estuvo conectado.
-        session_destroy();
-
-        // 5. Redirigimos al usuario a la página de login.
-        header('Location: ' . BASE_URL . 'login');
-        exit;
-}
-
-// 6. Limpia entradas de texto.
-// 6. Sanitize text inputs.
+// 5. Limpia entradas de texto.
+// 5. Sanitize text inputs.
 function sanitize_input($input) {
     if ($input === null){
         return '';
     }
     return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
 }
-//7. CSRF token para seguridad de formularios
-//7. CSRF toekn to security of form.
+//6. CSRF token para seguridad de formularios
+//6. CSRF toekn to security of form.
 function csrf_token() {
     if (!isset($_SESSION['csrf'])) {
         $_SESSION['csrf'] = bin2hex(random_bytes(32));
@@ -144,7 +104,7 @@ function csrf_check($token) {
         exit;
     }
 }
-//8.UNIDADES
+//7.UNIDADES
 function get_units() {
     return [
         'kg' => 'Kilogramos (kg)',
@@ -154,7 +114,7 @@ function get_units() {
     ];
 }
 
-//9.Tipos de producto
+//8.Tipos de producto
 function get_product_types() {
     return [
         'Ingredient'    => 'Materia Prima / Ingrediente',
@@ -163,7 +123,7 @@ function get_product_types() {
 }
 
 
-//10.Obtener datos de stock priorizando lotes con descuento
+//9.Obtener datos de stock priorizando lotes con descuento
 function get_product_data($pdo, $productId) {
     // 1. Get base price from products / Precio base
     $stmt = $pdo->prepare("SELECT price_sell FROM public.products WHERE id = ?");
