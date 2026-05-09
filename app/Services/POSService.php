@@ -10,13 +10,16 @@ class POSService {
         $this->posModel = new POSModel();
     }
 
-    public function processCheckout($cart, $grandTotal) {
+    public function processCheckout($cart, $grandTotal, $paymentMethod, $amountPaid) {
         try {
-            // Empezamos la transacción: si algo falla a medias, deshacemos todo para no romper la BD
+            // Iniciar transacción para mantener consistencia de venta y stock
             $this->posModel->beginTransaction();
 
-            // 1. Creamos la venta general
-            $saleId = $this->posModel->createSale($grandTotal);
+            // Calcular vuelto según método de pago
+            $changeAmount = ($paymentMethod === 'cash') ? round($amountPaid - $grandTotal, 2) : 0.00;
+
+            // Registrar cabecera de venta con datos de pago
+            $saleId = $this->posModel->createSale($grandTotal, $paymentMethod, $amountPaid, $changeAmount);
 
             // 2. Pasamos por cada producto del ticket
             foreach ($cart as $item) {
@@ -48,16 +51,16 @@ class POSService {
                 }
             }
 
-            // Si hemos llegado hasta aquí sin que explote nada, guardamos los cambios de verdad
+            // Confirmar transacción completa
             $this->posModel->commit();
             return true;
 
         } catch (Exception $e) {
-            // Si ha fallado algo, deshacemos todo lo que llevábamos (rollback) para dejar la BD como estaba
+            // Revertir transacción en caso de error
             if ($this->posModel->inTransaction()) {
                 $this->posModel->rollBack();
             }
-            throw $e; // Y le pasamos el error al controlador
+            throw $e;
         }
     }
 

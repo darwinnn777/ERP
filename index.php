@@ -36,6 +36,7 @@ $router->post('stock/discount', 'StockController@applyDiscount');
 // TPV (Point of Sale)
 $router->get('pos', 'POSController@index');
 $router->post('pos/add', 'POSController@add');
+$router->post('pos/remove', 'POSController@remove');
 $router->post('pos/clear', 'POSController@clear');
 $router->post('pos/checkout', 'POSController@checkout');
 

@@ -33,10 +33,14 @@ class POSModel extends Model {
 
     //Consultas SQL Puras para crear la venta 
     
-    // Registra el ticket de venta y nos devuelve su ID recién creado
-    public function createSale($totalAmount) {
-        $stmt = $this->db->prepare("INSERT INTO public.sales (total_amount, created_at) VALUES (?, NOW()) RETURNING id");
-        $stmt->execute([$totalAmount]);
+    // Registrar venta con datos de pago y devolver identificador
+    public function createSale($totalAmount, $paymentMethod, $amountPaid, $changeAmount) {
+        $stmt = $this->db->prepare("
+            INSERT INTO public.sales (total_amount, created_at, payment_method, amount_paid, change_amount)
+            VALUES (?, NOW(), ?, ?, ?)
+            RETURNING id
+        ");
+        $stmt->execute([$totalAmount, $paymentMethod, $amountPaid, $changeAmount]);
         return $stmt->fetchColumn();
     }
 

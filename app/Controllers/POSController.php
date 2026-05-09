@@ -36,10 +36,10 @@ class POSController {
     }
 
     public function add() {
-        // Avisamos de que vamos a devolver JSON porque esto funciona por AJAX (sin recargar la página)
+        // Devolver respuesta JSON para actualización del carrito
         header('Content-Type: application/json');
         require_role(['admin', 'dependiente']);
-        // Comprobamos el token de seguridad para que no nos cuelen peticiones falsas
+        // Validar token CSRF
         csrf_check($_POST['csrf_token'] ?? '');
 
         $prodId = (int)$_POST['product_id'];
@@ -48,7 +48,7 @@ class POSController {
         global $pdo;
         $prodInfo = get_product_data($pdo, $prodId);
 
-        // Verificamos que no intenten meter cantidades raras o más de lo que hay en stock
+        // Validar cantidad solicitada
         if ($qtyRequested <= 0) {
             echo json_encode(['success' => false, 'message' => 'Cantidad inválida']);
             exit;
@@ -57,31 +57,55 @@ class POSController {
             exit;
         }
 
-        // Si está en oferta, le metemos el descuento del 50%. Si no, precio normal.
-        $finalPrice = $prodInfo['on_sale'] ? ($prodInfo['price'] * 0.5) : $prodInfo['price'];
-        // Creamos una clave única en el carrito (separando si es de oferta o normal)
-        $cartKey = $prodId . '_' . ($prodInfo['on_sale'] ? 'sale' : 'normal');
+        // Separar unidades con oferta y unidades a precio normal
+        $productName = sanitize_input($_POST['product_name']);
+        $saleKey = $prodId . '_sale';
+        $normalKey = $prodId . '_normal';
+        $currentSaleQty = isset($_SESSION['cart'][$saleKey]) ? (int) $_SESSION['cart'][$saleKey]['quantity'] : 0;
+        $currentNormalQty = isset($_SESSION['cart'][$normalKey]) ? (int) $_SESSION['cart'][$normalKey]['quantity'] : 0;
 
-        // Si ya estaba en el ticket, le sumamos la cantidad (comprobando stock otra vez)
-        if (isset($_SESSION['cart'][$cartKey])) {
-            $newQty = $_SESSION['cart'][$cartKey]['quantity'] + $qtyRequested;
-            if ($newQty > $prodInfo['stock']) {
-                echo json_encode(['success' => false, 'message' => 'Stock insuficiente al sumar al ticket']);
-                exit;
-            }
-            $_SESSION['cart'][$cartKey]['quantity'] = $newQty;
-        } else {
-            // Si es nuevo, lo metemos al carrito con todos sus datos
-            $_SESSION['cart'][$cartKey] = [
-                'id' => $prodId,
-                'name' => sanitize_input($_POST['product_name']) . ($prodInfo['on_sale'] ? ' (OFERTA)' : ''),
-                'price' => $finalPrice,
-                'quantity' => $qtyRequested,
-                'is_sale_item' => $prodInfo['on_sale']
-            ];
+        $discountedStock = (int) floor((float) ($prodInfo['discounted_stock'] ?? 0));
+        $totalStock = (int) floor((float) ($prodInfo['stock'] ?? 0));
+        $currentTotalQty = $currentSaleQty + $currentNormalQty;
+
+        if (($currentTotalQty + $qtyRequested) > $totalStock) {
+            echo json_encode(['success' => false, 'message' => 'Stock insuficiente al sumar al ticket']);
+            exit;
         }
 
-        // Devolvemos OK al AJAX para que la pantalla se actualice
+        $saleRoom = max(0, $discountedStock - $currentSaleQty);
+        $qtySale = min($qtyRequested, $saleRoom);
+        $qtyNormal = $qtyRequested - $qtySale;
+
+        if ($qtySale > 0) {
+            if (isset($_SESSION['cart'][$saleKey])) {
+                $_SESSION['cart'][$saleKey]['quantity'] += $qtySale;
+            } else {
+                $_SESSION['cart'][$saleKey] = [
+                    'id' => $prodId,
+                    'name' => $productName . ' (OFERTA)',
+                    'price' => round((float) $prodInfo['price'] * 0.5, 2),
+                    'quantity' => $qtySale,
+                    'is_sale_item' => true
+                ];
+            }
+        }
+
+        if ($qtyNormal > 0) {
+            if (isset($_SESSION['cart'][$normalKey])) {
+                $_SESSION['cart'][$normalKey]['quantity'] += $qtyNormal;
+            } else {
+                $_SESSION['cart'][$normalKey] = [
+                    'id' => $prodId,
+                    'name' => $productName,
+                    'price' => round((float) $prodInfo['price'], 2),
+                    'quantity' => $qtyNormal,
+                    'is_sale_item' => false
+                ];
+            }
+        }
+
+        // Informar inserción correcta en carrito
         echo json_encode(['success' => true, 'message' => 'Añadido al ticket']);
         exit;
     }
@@ -94,6 +118,26 @@ class POSController {
         // Vaciamos el carrito cargándonos la variable de sesión
         $_SESSION['cart'] = [];
         echo json_encode(['success' => true, 'message' => 'Ticket vaciado']);
+        exit;
+    }
+
+    public function remove() {
+        // Devolver respuesta JSON para eliminación de línea del ticket
+        header('Content-Type: application/json');
+        require_role(['admin', 'dependiente']);
+        // Validar token CSRF
+        csrf_check($_POST['csrf_token'] ?? '');
+
+        // Obtener clave de línea en carrito
+        $cartKey = $_POST['cart_key'] ?? '';
+        if ($cartKey === '' || !isset($_SESSION['cart'][$cartKey])) {
+            echo json_encode(['success' => false, 'message' => 'Línea de ticket no válida']);
+            exit;
+        }
+
+        // Eliminar línea seleccionada del carrito
+        unset($_SESSION['cart'][$cartKey]);
+        echo json_encode(['success' => true, 'message' => 'Línea eliminada del ticket']);
         exit;
     }
 
@@ -113,15 +157,33 @@ class POSController {
             $grandTotal += $item['price'] * $item['quantity'];
         }
 
+        // Validar método de pago recibido
+        $paymentMethod = $_POST['payment_method'] ?? '';
+        if (!in_array($paymentMethod, ['cash', 'card'], true)) {
+            echo json_encode(['success' => false, 'message' => 'Método de pago no válido']);
+            exit;
+        }
+
+        // Validar importes de pago según método
+        if ($paymentMethod === 'cash') {
+            $amountPaid = round((float) ($_POST['amount_paid'] ?? 0), 2);
+            if ($amountPaid < $grandTotal) {
+                echo json_encode(['success' => false, 'message' => 'Importe insuficiente para pago en efectivo']);
+                exit;
+            }
+        } else {
+            $amountPaid = $grandTotal;
+        }
+
         try {
-            // Aquí viene lo bueno: el controlador le pasa el marrón (la lógica compleja) al SERVICIO
-            $this->posService->processCheckout($_SESSION['cart'], $grandTotal);
+            // Delegar proceso de venta al servicio
+            $this->posService->processCheckout($_SESSION['cart'], $grandTotal, $paymentMethod, $amountPaid);
             
-            // Si todo va bien, vaciamos el carrito y damos el OK
+            // Limpiar carrito al completar venta
             $_SESSION['cart'] = [];
             echo json_encode(['success' => true, 'message' => 'Venta procesada con éxito']);
         } catch (Exception $e) {
-            // Si peta algo en el servicio (ej. falta stock de repente), mandamos el error para avisar al usuario
+            // Informar error de proceso
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
         exit;

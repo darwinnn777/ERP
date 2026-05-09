@@ -14,7 +14,7 @@ require_once __DIR__ . '/../layouts/sidebar.php';
 
     <div class="row">
         <!-- Columna izquierda: productos disponibles -->
-        <div class="col-lg-8">
+        <div class="col-lg-8" id="pos_products_panel">
             <div class="row g-3">
                 <?php foreach ($productsList as $p):
                     $data = get_product_data($pdo, $p['id']);
@@ -60,7 +60,7 @@ require_once __DIR__ . '/../layouts/sidebar.php';
         </div>
 
         <!-- Columna derecha: ticket actual -->
-        <div class="col-lg-4 mt-4 mt-lg-0">
+        <div class="col-lg-4 mt-4 mt-lg-0" id="pos_ticket_panel">
             <div class="card card-login border-0 shadow rounded-4 sticky-top" style="top: 1.5rem;">
                 <div class="card-header bg-white border-0 py-3 text-center">
                     <h5 class="fw-bold text-bakery mb-0">Ticket Actual</h5>
@@ -72,7 +72,7 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                         if (empty($_SESSION['cart'])): ?>
                             <p class="text-center text-muted py-5 small">El ticket está vacío</p>
                         <?php else: ?>
-                            <?php foreach ($_SESSION['cart'] as $item):
+                            <?php foreach ($_SESSION['cart'] as $key => $item):
                                 $subtotal = $item['price'] * $item['quantity'];
                                 $grandTotal += $subtotal;
                             ?>
@@ -81,7 +81,16 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                                     <span class="fw-bold d-block small"><?= $item['name'] ?></span>
                                     <small class="text-muted"><?= $item['quantity'] ?> x <?= number_format($item['price'], 2) ?>€</small>
                                 </div>
-                                <span class="fw-bold text-bakery"><?= number_format($subtotal, 2) ?>€</span>
+                                <div class="text-end">
+                                    <span class="fw-bold text-bakery d-block"><?= number_format($subtotal, 2) ?>€</span>
+                                    <form action="pos/remove" method="POST" class="ajax-form remove-line-form d-inline">
+                                        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                                        <input type="hidden" name="cart_key" value="<?= sanitize_input((string) $key) ?>">
+                                        <button type="submit" class="btn btn-link btn-sm text-danger text-decoration-none p-0 fw-bold" title="Quitar línea">
+                                            X
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -95,6 +104,21 @@ require_once __DIR__ . '/../layouts/sidebar.php';
 
                     <form action="pos/checkout" method="POST" class="ajax-form checkout-form">
                         <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                        <input type="hidden" id="checkout_total_raw" value="<?= number_format($grandTotal, 2, '.', '') ?>">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Método de pago</label>
+                            <select name="payment_method" id="payment_method" class="form-select form-select-sm" <?= empty($_SESSION['cart']) ? 'disabled' : '' ?>>
+                                <option value="cash">Efectivo</option>
+                                <option value="card">Tarjeta</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3" id="cash_amount_group">
+                            <label class="form-label small fw-bold text-uppercase text-muted">Importe recibido</label>
+                            <input type="number" step="0.01" min="0" name="amount_paid" id="amount_paid" class="form-control form-control-sm" value="<?= number_format($grandTotal, 2, '.', '') ?>" <?= empty($_SESSION['cart']) ? 'disabled' : '' ?>>
+                            <small class="text-muted d-block mt-1">Vuelto: <span id="change_preview">0.00</span> €</small>
+                        </div>
+
                         <button type="submit" class="btn btn-bakery w-100 py-3 fw-bold rounded-pill shadow-sm" <?= empty($_SESSION['cart']) ? 'disabled' : '' ?>>
                             COBRAR VENTA
                         </button>
@@ -110,41 +134,88 @@ require_once __DIR__ . '/../layouts/sidebar.php';
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
-document.querySelectorAll('.ajax-form').forEach(form => {
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
+function updatePaymentUi() {
+    // Ajustar campos de pago según método seleccionado
+    const methodEl = document.getElementById('payment_method');
+    const cashGroup = document.getElementById('cash_amount_group');
+    const amountEl = document.getElementById('amount_paid');
+    const changeEl = document.getElementById('change_preview');
+    const totalEl = document.getElementById('checkout_total_raw');
+    if (!methodEl || !cashGroup || !amountEl || !changeEl || !totalEl) return;
 
-        const isCheckout = this.classList.contains('checkout-form');
-        const formData = new FormData(this);
-        const actionUrl = this.getAttribute('action');
+    const total = parseFloat(totalEl.value || '0');
+    const amount = parseFloat(amountEl.value || '0');
 
-        const btnSubmit = this.querySelector('button[type="submit"]');
-        const originalText = btnSubmit.innerHTML;
-        btnSubmit.innerHTML = '...';
-        btnSubmit.disabled = true;
+    if (methodEl.value === 'card') {
+        cashGroup.classList.add('d-none');
+        amountEl.value = total.toFixed(2);
+        changeEl.innerText = '0.00';
+    } else {
+        cashGroup.classList.remove('d-none');
+        const change = Math.max(0, amount - total);
+        changeEl.innerText = change.toFixed(2);
+    }
+}
 
-        fetch(actionUrl, { method: 'POST', body: formData })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                if (isCheckout) {
-                    Swal.fire({ icon: 'success', title: '¡Venta procesada!', text: data.message, timer: 2000, showConfirmButton: false })
-                    .then(() => location.reload());
-                } else {
-                    location.reload();
-                }
-            } else {
-                Swal.fire('Atención', data.message, 'warning');
-                btnSubmit.innerHTML = originalText;
-                btnSubmit.disabled = false;
+// Actualizar paneles de productos y ticket sin recargar toda la página
+function refreshPosPanels() {
+    // Realizar una sola petición y reutilizar el HTML para ambos paneles
+    $.get(window.location.href, function (html) {
+        const $doc = $('<div>').append($.parseHTML(html));
+        const productsHtml = $doc.find('#pos_products_panel').html();
+        const ticketHtml = $doc.find('#pos_ticket_panel').html();
+
+        if (typeof productsHtml !== 'undefined') {
+            $('#pos_products_panel').html(productsHtml);
+        }
+        if (typeof ticketHtml !== 'undefined') {
+            $('#pos_ticket_panel').html(ticketHtml);
+        }
+        updatePaymentUi();
+    });
+}
+
+$(document).on('change', '#payment_method', updatePaymentUi);
+$(document).on('input', '#amount_paid', updatePaymentUi);
+$(function () { updatePaymentUi(); });
+
+$(document).on('submit', '.ajax-form', function (e) {
+    e.preventDefault();
+
+    const $form = $(this);
+    const isCheckout = $form.hasClass('checkout-form');
+    const $btnSubmit = $form.find('button[type="submit"]').first();
+    const originalText = $btnSubmit.html();
+
+    // Mostrar estado de proceso en botón enviado
+    if ($btnSubmit.length) {
+        $btnSubmit.html('...');
+        $btnSubmit.prop('disabled', true);
+    }
+
+    $.ajax({
+        url: $form.attr('action'),
+        type: 'POST',
+        data: $form.serialize(),
+        dataType: 'json'
+    }).done(function (data) {
+        if (data.success) {
+            if (isCheckout) {
+                Swal.fire({ icon: 'success', title: 'Venta procesada', text: data.message, timer: 1800, showConfirmButton: false });
             }
-        })
-        .catch(() => {
-            Swal.fire('Error', 'Fallo de conexión', 'error');
-            btnSubmit.innerHTML = originalText;
-            btnSubmit.disabled = false;
-        });
+            refreshPosPanels();
+        } else {
+            Swal.fire('Atención', data.message, 'warning');
+        }
+    }).fail(function () {
+        Swal.fire('Error', 'Fallo de conexión', 'error');
+    }).always(function () {
+        if ($btnSubmit.length) {
+            $btnSubmit.html(originalText);
+            $btnSubmit.prop('disabled', false);
+        }
     });
 });
 </script>
