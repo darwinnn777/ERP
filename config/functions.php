@@ -138,7 +138,10 @@ function csrf_token() {
 
 function csrf_check($token) {
     if (!isset($_SESSION['csrf']) || $token !== $_SESSION['csrf']) {
-        die("CSRF inválido");
+        header('Content-Type: application/json');
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'Token CSRF inválido. Recarga la página.']);
+        exit;
     }
 }
 //8.UNIDADES
