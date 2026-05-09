@@ -1,0 +1,10 @@
+# Credenciales secretas
+.env
+
+# Sistema operativo
+Thumbs.db
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
