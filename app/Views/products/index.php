@@ -29,8 +29,8 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-1"><input type="number" name="price_buy" step="0.01" class="form-control" placeholder="Compra"></div>
-                <div class="col-md-1"><input type="number" name="price_sell" step="0.01" class="form-control" placeholder="Venta"></div>
+                <div class="col-md-1"><input type="number" name="price_buy" step="0.01" min="0" class="form-control" placeholder="Compra"></div>
+                <div class="col-md-1"><input type="number" name="price_sell" step="0.01" min="0" class="form-control" placeholder="Venta"></div>
                 <div class="col-md-1"><button type="submit" class="btn btn-bakery w-100 fw-bold">Añadir</button></div>
             </form>
         </div>
@@ -157,8 +157,8 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="col-6"><label class="small fw-bold">Compra</label><input type="number" step="0.01" name="price_buy" id="edit_buy" class="form-control"></div>
-                        <div class="col-6"><label class="small fw-bold">Venta</label><input type="number" step="0.01" name="price_sell" id="edit_sell" class="form-control"></div>
+                        <div class="col-6"><label class="small fw-bold">Compra</label><input type="number" step="0.01" min="0" name="price_buy" id="edit_buy" class="form-control"></div>
+                        <div class="col-6"><label class="small fw-bold">Venta</label><input type="number" step="0.01" min="0" name="price_sell" id="edit_sell" class="form-control"></div>
                     </div>
                 </div>
                 <div class="modal-footer border-0"><button type="submit" class="btn btn-bakery w-100 rounded-pill py-2 fw-bold">Guardar Cambios</button></div>

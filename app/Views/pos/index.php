@@ -17,7 +17,12 @@ require_once __DIR__ . '/../layouts/sidebar.php';
         <div class="col-lg-8" id="pos_products_panel">
             <div class="row g-3">
                 <?php foreach ($productsList as $p):
-                    $data = get_product_data($pdo, $p['id']);
+                    $data = [
+                        'price' => (float)$p['price'],
+                        'stock' => (float)$p['stock'],
+                        'discounted_stock' => (float)$p['discounted_stock'],
+                        'on_sale' => ((float)$p['discounted_stock'] > 0)
+                    ];
                 ?>
                 <div class="col-md-6 col-xl-4">
                     <div class="card h-100 card-login border-0 shadow-sm">

@@ -96,11 +96,11 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                     <div class="row">
                         <div class="col-6 mb-3">
                             <label class="form-label small fw-bold text-muted text-uppercase">Cantidad</label>
-                            <input type="number" step="0.01" name="quantity" id="iqty" class="form-control rounded-3" required oninput="re()">
+                            <input type="number" step="0.01" min="0" name="quantity" id="iqty" class="form-control rounded-3" required oninput="re()">
                         </div>
                         <div class="col-6 mb-3">
                             <label class="form-label small fw-bold text-muted text-uppercase">Precio Unit.</label>
-                            <input type="number" step="0.01" name="price_unit" id="ipri" class="form-control rounded-3" required oninput="re()">
+                            <input type="number" step="0.01" min="0" name="price_unit" id="ipri" class="form-control rounded-3" required oninput="re()">
                         </div>
                     </div>
                     <div class="alert alert-secondary border-0 py-2 mt-2 d-flex justify-content-between align-items-center">

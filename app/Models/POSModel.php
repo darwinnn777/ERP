@@ -13,6 +13,23 @@ class POSModel extends Model {
         ")->fetchAll();
     }
 
+    // Trae los productos finales con su precio, stock total y stock con descuento en una sola consulta
+    public function getFinalProductsWithData() {
+        return $this->db->query("
+            SELECT 
+                p.id, 
+                p.name, 
+                p.price_sell as price,
+                COALESCE(SUM(sl.quantity), 0) as stock,
+                COALESCE(SUM(CASE WHEN sl.is_discounted = TRUE THEN sl.quantity ELSE 0 END), 0) as discounted_stock
+            FROM public.products p
+            LEFT JOIN public.stock_lots sl ON p.id = sl.product_id AND sl.quantity > 0
+            WHERE p.product_type = 'Final Product'
+            GROUP BY p.id, p.name, p.price_sell
+            ORDER BY p.name ASC
+        ")->fetchAll();
+    }
+
     // Mira cuánto stock real nos queda de un producto sumando todos sus lotes
     public function getRealStock($productId) {
         $stmt = $this->db->prepare("

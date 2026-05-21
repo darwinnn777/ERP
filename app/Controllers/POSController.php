@@ -27,7 +27,7 @@ class POSController {
         require_role(['admin', 'dependiente']);
         
         // El controlador pide la lista de productos al Modelo para pintarlos en la pantalla
-        $productsList = $this->posModel->getFinalProducts();
+        $productsList = $this->posModel->getFinalProductsWithData();
         
         global $pdo; 
         

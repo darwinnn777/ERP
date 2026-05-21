@@ -80,6 +80,7 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                                 <input id="qty-<?= $index ?>"
                                        type="number"
                                        step="0.01"
+                                       min="0"
                                        name="items[<?= $index ?>][qty_received]"
                                        class="form-control form-control-sm text-end mx-auto receive-input-qty"
                                        value="<?= htmlspecialchars((string) $item['quantity'], ENT_QUOTES, 'UTF-8') ?>"
