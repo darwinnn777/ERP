@@ -1,6 +1,6 @@
 <?php
 require_role(['admin']);
-$page_title = 'Órdenes de Compra - ERP Bakery';
+$page_title = 'Órdenes de Compra - BAKERP';
 require_once __DIR__ . '/../layouts/sidebar.php';
 ?>
 

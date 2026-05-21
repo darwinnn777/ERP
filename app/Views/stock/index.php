@@ -1,6 +1,6 @@
 <?php
 require_role(['admin', 'obrador', 'dependiente']);
-$page_title = 'Stock - ERP Bakery';
+$page_title = 'Stock - BAKERP';
 require_once __DIR__ . '/../layouts/sidebar.php';
 ?>
 

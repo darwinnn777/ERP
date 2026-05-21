@@ -1,6 +1,6 @@
 <?php
 require_role('admin');
-$page_title = 'Gestión de Usuarios - ERP Bakery';
+$page_title = 'Gestión de Usuarios - BAKERP';
 require_once __DIR__ . '/../layouts/sidebar.php';
 ?>
 

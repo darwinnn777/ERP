@@ -1,6 +1,6 @@
 <?php
 require_role(['admin']);
-$page_title = 'Recibir Pedido #' . $po_id . ' - ERP Bakery';
+$page_title = 'Recibir Pedido #' . $po_id . ' - BAKERP';
 require_once __DIR__ . '/../layouts/sidebar.php';
 ?>
 
