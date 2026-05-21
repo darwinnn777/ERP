@@ -16,7 +16,7 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                 <div class="col-md-2"><input type="text" name="sku" class="form-control" placeholder="SKU" required maxlength="50"></div>
                 <div class="col-md-3"><input type="text" name="name" class="form-control" placeholder="Nombre del producto" required maxlength="100"></div>
                 <div class="col-md-2">
-                    <select name="type" class="form-select">
+                    <select name="type" id="create_type" class="form-select">
                         <?php foreach($product_types as $key => $label): ?>
                             <option value="<?= $key ?>"><?= $label ?></option>
                         <?php endforeach; ?>
@@ -30,7 +30,7 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                     </select>
                 </div>
                 <div class="col-md-1"><input type="number" name="price_buy" step="0.01" min="0" class="form-control" placeholder="Compra"></div>
-                <div class="col-md-1"><input type="number" name="price_sell" step="0.01" min="0" class="form-control" placeholder="Venta"></div>
+                <div class="col-md-1" id="create_sell_container"><input type="number" name="price_sell" id="create_sell" step="0.01" min="0" class="form-control" placeholder="Venta"></div>
                 <div class="col-md-1"><button type="submit" class="btn btn-bakery w-100 fw-bold">Añadir</button></div>
             </form>
         </div>
@@ -90,8 +90,12 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                         </td>
                         <td class="small"><?= $units[$p['unit_of_measure']] ?? $p['unit_of_measure'] ?></td>
                         <td class="text-nowrap small">
-                            <span class="text-danger fw-bold"><?= number_format($p['price_buy'], 2) ?></span> /
-                            <span class="text-success fw-bold"><?= number_format($p['price_sell'], 2) ?></span>
+                            <span class="text-danger fw-bold"><?= number_format($p['price_buy'], 2) ?></span>
+                            <?php if ($p['product_type'] === 'Final Product'): ?>
+                                / <span class="text-success fw-bold"><?= number_format($p['price_sell'], 2) ?></span>
+                            <?php else: ?>
+                                / <span class="text-muted fw-bold">-</span>
+                            <?php endif; ?>
                         </td>
                         <td>
                             <div class="dropdown">
@@ -158,7 +162,7 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                             </select>
                         </div>
                         <div class="col-6"><label class="small fw-bold">Compra</label><input type="number" step="0.01" min="0" name="price_buy" id="edit_buy" class="form-control"></div>
-                        <div class="col-6"><label class="small fw-bold">Venta</label><input type="number" step="0.01" min="0" name="price_sell" id="edit_sell" class="form-control"></div>
+                        <div class="col-6" id="edit_sell_wrapper"><label class="small fw-bold">Venta</label><input type="number" step="0.01" min="0" name="price_sell" id="edit_sell" class="form-control"></div>
                     </div>
                 </div>
                 <div class="modal-footer border-0"><button type="submit" class="btn btn-bakery w-100 rounded-pill py-2 fw-bold">Guardar Cambios</button></div>
@@ -202,6 +206,9 @@ function prepare_edit_modal(p) {
     document.getElementById('edit_type').value = p.product_type;
     document.getElementById('edit_buy').value  = p.price_buy;
     document.getElementById('edit_sell').value = p.price_sell;
+    
+    // Trigger change event to update the sell price visibility
+    document.getElementById('edit_type').dispatchEvent(new Event('change'));
 }
 
 function prepare_image_modal(id) {
@@ -246,6 +253,33 @@ function submitAjaxForm(formElement) {
     .catch(() => Swal.fire({ icon: 'error', title: 'Error de Red', text: 'Ocurrió un error al contactar con el servidor.' }))
     .finally(() => { if (btnSubmit) { btnSubmit.innerHTML = originalText; btnSubmit.disabled = false; } });
 }
+
+function toggleSellPriceVisibility(typeSelectId, sellContainerId, sellInputId) {
+    const typeSelect = document.getElementById(typeSelectId);
+    const sellContainer = document.getElementById(sellContainerId);
+    const sellInput = document.getElementById(sellInputId);
+
+    if (!typeSelect || !sellContainer || !sellInput) return;
+
+    function updateVisibility() {
+        if (typeSelect.value === 'Ingredient') {
+            sellContainer.style.display = 'none';
+            sellInput.value = ''; 
+            sellInput.disabled = true;
+        } else {
+            sellContainer.style.display = 'block';
+            sellInput.disabled = false;
+        }
+    }
+
+    typeSelect.addEventListener('change', updateVisibility);
+    updateVisibility(); 
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    toggleSellPriceVisibility('create_type', 'create_sell_container', 'create_sell');
+    toggleSellPriceVisibility('edit_type', 'edit_sell_wrapper', 'edit_sell');
+});
 </script>
 
 <?php require_once __DIR__ . '/../layouts/footer.php'; ?>
