@@ -93,7 +93,8 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                                        name="items[<?= $index ?>][lot_number]"
                                        class="form-control form-control-sm receive-input-lot"
                                        placeholder="Ej. L2026-001"
-                                       required>
+                                       required
+                                       maxlength="50">
                             </td>
                             <td class="pe-4 text-start">
                                 <label class="visually-hidden" for="exp-<?= $index ?>">Fecha de caducidad</label>

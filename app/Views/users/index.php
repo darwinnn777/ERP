@@ -107,20 +107,20 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                 <div class="modal-body p-4">
                     <div class="mb-3">
                         <label class="form-label small fw-bold">Usuario de acceso</label>
-                        <input type="text" name="user" class="form-control rounded-3" required>
+                        <input type="text" name="user" class="form-control rounded-3" required maxlength="50">
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold">Nombre Completo</label>
-                        <input type="text" name="full_name" class="form-control rounded-3" required>
+                        <input type="text" name="full_name" class="form-control rounded-3" required maxlength="100">
                     </div>
                     <div class="row">
                         <div class="col-6 mb-3">
                             <label class="form-label small fw-bold">Contraseña</label>
-                            <input type="password" name="password" class="form-control rounded-3" required minlength="5">
+                            <input type="password" name="password" class="form-control rounded-3" required minlength="5" maxlength="255">
                         </div>
                         <div class="col-6 mb-3">
                             <label class="form-label small fw-bold">Confirmar</label>
-                            <input type="password" name="confirm_password" class="form-control rounded-3" required minlength="5">
+                            <input type="password" name="confirm_password" class="form-control rounded-3" required minlength="5" maxlength="255">
                         </div>
                     </div>
                     <div class="mb-3">
@@ -168,10 +168,10 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                     <p class="text-muted small fw-bold mb-3"><i class="bi bi-key me-1"></i> Cambiar Contraseña (Opcional)</p>
                     <div class="row">
                         <div class="col-6 mb-3">
-                            <input type="password" name="new_password" id="edit_pass1" class="form-control rounded-3" placeholder="Nueva clave">
+                            <input type="password" name="new_password" id="edit_pass1" class="form-control rounded-3" placeholder="Nueva clave" minlength="5" maxlength="255">
                         </div>
                         <div class="col-6 mb-3">
-                            <input type="password" name="confirm_password" id="edit_pass2" class="form-control rounded-3" placeholder="Repetir">
+                            <input type="password" name="confirm_password" id="edit_pass2" class="form-control rounded-3" placeholder="Repetir" minlength="5" maxlength="255">
                         </div>
                     </div>
                 </div>

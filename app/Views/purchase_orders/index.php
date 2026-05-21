@@ -80,7 +80,7 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                 <div class="modal-body px-4">
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted text-uppercase">Nombre del Proveedor</label>
-                        <input type="text" name="provider" class="form-control rounded-3" placeholder="Ej: Harinas García S.L." required>
+                        <input type="text" name="provider" class="form-control rounded-3" placeholder="Ej: Harinas García S.L." required maxlength="100">
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted text-uppercase">Producto del Catálogo</label>

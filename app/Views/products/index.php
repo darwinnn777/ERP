@@ -13,8 +13,8 @@ require_once __DIR__ . '/../layouts/sidebar.php';
         <div class="card-body p-4">
             <form action="productos/save" method="POST" class="row g-2 ajax-form">
                 <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                <div class="col-md-2"><input type="text" name="sku" class="form-control" placeholder="SKU" required></div>
-                <div class="col-md-3"><input type="text" name="name" class="form-control" placeholder="Nombre del producto" required></div>
+                <div class="col-md-2"><input type="text" name="sku" class="form-control" placeholder="SKU" required maxlength="50"></div>
+                <div class="col-md-3"><input type="text" name="name" class="form-control" placeholder="Nombre del producto" required maxlength="100"></div>
                 <div class="col-md-2">
                     <select name="type" class="form-select">
                         <?php foreach($product_types as $key => $label): ?>
@@ -139,8 +139,8 @@ require_once __DIR__ . '/../layouts/sidebar.php';
                     <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                     <input type="hidden" name="id" id="edit_id">
                     <div class="row g-3">
-                        <div class="col-12"><label class="small fw-bold">Nombre</label><input type="text" name="name" id="edit_name" class="form-control" required></div>
-                        <div class="col-6"><label class="small fw-bold">SKU</label><input type="text" name="sku" id="edit_sku" class="form-control" required></div>
+                        <div class="col-12"><label class="small fw-bold">Nombre</label><input type="text" name="name" id="edit_name" class="form-control" required maxlength="100"></div>
+                        <div class="col-6"><label class="small fw-bold">SKU</label><input type="text" name="sku" id="edit_sku" class="form-control" required maxlength="50"></div>
                         <div class="col-6">
                             <label class="small fw-bold">Unidad</label>
                             <select name="unit" id="edit_unit" class="form-select">
