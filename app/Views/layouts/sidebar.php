@@ -29,7 +29,7 @@ function sidebar_active(string $segment): string {
             <i class="bi bi-list"></i>
         </button>
         <a class="topbar-brand" href="dashboard">
-            <img src="assets/img_products/logo.png" alt="Logo" class="navbar-logo">
+            <img src="assets/img_products/logo.png?v=2" alt="Logo" class="navbar-logo">
             BAKERP
         </a>
     </div>
