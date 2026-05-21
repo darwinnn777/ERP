@@ -19,7 +19,7 @@
 
     <!-- Panel izquierdo oscuro -->
     <div class="login-left d-flex flex-column align-items-center justify-content-center text-center p-4">
-        <img src="assets/img_products/logoB.png" alt="Logo" style="width:350px;" class="mb-0">
+        <img src="assets/img_products/logoB.png?v=3" alt="Logo" style="width:350px;" class="mb-0">
         <h1 class="text-white fw-bold fs-4 mb-1" style="margin-top:-30px;">BAKERP</h1>
         <div class="login-divider my-2"></div>
         <p class="login-tagline mb-0">Sistema de gestion comercial<br>y produccion para panaderia</p>
