@@ -18,7 +18,7 @@
 <div style="display:flex; height:100vh; width:100%; overflow:hidden;">
 
     <!-- Panel izquierdo oscuro -->
-    <div class="login-left d-flex flex-column align-items-center justify-content-center text-center p-4">
+    <div class="login-left d-none d-md-flex flex-column align-items-center justify-content-center text-center p-4">
         <img src="assets/img_products/logoB.png?v=3" alt="Logo" style="width:350px;" class="mb-0">
         <h1 class="text-white fw-bold fs-4 mb-1" style="margin-top:-30px;">BAKERP</h1>
         <div class="login-divider my-2"></div>
@@ -27,7 +27,13 @@
 
     <!-- Panel derecho gris -->
     <div style="flex:1; background:#f0f2f5; display:flex; align-items:center; justify-content:center;">
-        <div class="bg-white rounded-4 p-4 shadow-sm" style="width:100%;max-width:380px;">
+        <div class="bg-white rounded-4 p-4 shadow-sm mx-3" style="width:100%;max-width:380px;">
+
+            <!-- Mobile Branding -->
+            <div class="d-block d-md-none text-center mb-4">
+                <h1 class="fw-bold fs-2 mb-0" style="color:#1a1a2e;">BAKERP</h1>
+                <p class="text-muted small mb-0">Sistema de gestión comercial</p>
+            </div>
 
             <?php if (!empty($errors)): ?>
                 <div class="alert alert-danger py-2 text-center" style="font-size:0.9rem;">
