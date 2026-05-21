@@ -1,104 +1,122 @@
--- WARNING: This schema is for context only and is not meant to be run.
--- Table order and constraints may not be valid for execution.
+-- 1. roles
+CREATE TABLE roles (
+  id INT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  PRIMARY KEY (id)
+);
 
-CREATE TABLE public.products (
-  id integer NOT NULL DEFAULT nextval('products_id_seq'::regclass),
-  sku character varying NOT NULL UNIQUE,
-  name character varying NOT NULL,
-  price_sell numeric NOT NULL,
-  price_buy numeric NOT NULL,
-  min_stock integer DEFAULT 10,
-  product_type character varying DEFAULT 'Final Product'::character varying CHECK (product_type::text = ANY (ARRAY['Ingredient'::character varying, 'Final Product'::character varying, 'Both'::character varying]::text[])),
-  unit_of_measure character varying DEFAULT 'unit'::character varying,
-  image_url text,
-  is_discounted boolean DEFAULT false,
-  CONSTRAINT products_pkey PRIMARY KEY (id)
+-- 2. users
+CREATE TABLE users (
+  id INT NOT NULL AUTO_INCREMENT,
+  username VARCHAR(255) NOT NULL UNIQUE,
+  full_name VARCHAR(255) DEFAULT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  role_id INT NOT NULL,
+  PRIMARY KEY (id),
+  CONSTRAINT users_role_fk FOREIGN KEY (role_id) REFERENCES roles(id)
 );
-CREATE TABLE public.purchase_order_items (
-  id integer NOT NULL DEFAULT nextval('purchase_order_items_id_seq'::regclass),
-  po_id integer,
-  product_id integer,
-  quantity numeric NOT NULL,
-  price numeric NOT NULL DEFAULT 0,
-  received boolean DEFAULT false,
-  CONSTRAINT purchase_order_items_pkey PRIMARY KEY (id),
-  CONSTRAINT purchase_order_items_po_id_fkey FOREIGN KEY (po_id) REFERENCES public.purchase_orders(id),
-  CONSTRAINT purchase_order_items_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id)
+
+-- 3. products
+CREATE TABLE products (
+  id INT NOT NULL AUTO_INCREMENT,
+  sku VARCHAR(255) NOT NULL UNIQUE,
+  name VARCHAR(255) NOT NULL,
+  price_sell DECIMAL(10,2) NOT NULL,
+  price_buy DECIMAL(10,2) NOT NULL,
+  min_stock INT DEFAULT 10,
+  product_type ENUM('Ingredient', 'Final Product', 'Both') DEFAULT 'Final Product',
+  unit_of_measure VARCHAR(50) DEFAULT 'unit',
+  image_url TEXT,
+  is_discounted BOOLEAN DEFAULT FALSE,
+  PRIMARY KEY (id)
 );
-CREATE TABLE public.purchase_orders (
-  id integer NOT NULL DEFAULT nextval('purchase_orders_id_seq'::regclass),
-  provider_name character varying NOT NULL,
-  order_date timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-  status character varying DEFAULT 'Pendiente'::character varying CHECK (status::text = ANY (ARRAY['Pendiente'::character varying, 'Recibido'::character varying]::text[])),
-  total_amount numeric DEFAULT 0.00,
-  CONSTRAINT purchase_orders_pkey PRIMARY KEY (id)
+
+-- 4. recipes
+CREATE TABLE recipes (
+  id INT NOT NULL AUTO_INCREMENT,
+  final_product_id INT NOT NULL,
+  ingredient_id INT NOT NULL,
+  quantity_needed DECIMAL(10,2) NOT NULL,
+  PRIMARY KEY (id),
+  CONSTRAINT fk_final_product FOREIGN KEY (final_product_id) REFERENCES products(id),
+  CONSTRAINT fk_ingredient FOREIGN KEY (ingredient_id) REFERENCES products(id)
 );
-CREATE TABLE public.recipes (
-  id integer NOT NULL DEFAULT nextval('recipes_id_seq'::regclass),
-  final_product_id integer NOT NULL,
-  ingredient_id integer NOT NULL,
-  quantity_needed numeric NOT NULL,
-  CONSTRAINT recipes_pkey PRIMARY KEY (id),
-  CONSTRAINT fk_final_product FOREIGN KEY (final_product_id) REFERENCES public.products(id),
-  CONSTRAINT fk_ingredient FOREIGN KEY (ingredient_id) REFERENCES public.products(id)
+
+-- 5. purchase_orders
+CREATE TABLE purchase_orders (
+  id INT NOT NULL AUTO_INCREMENT,
+  provider_name VARCHAR(255) NOT NULL,
+  order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  status ENUM('Pendiente', 'Recibido') DEFAULT 'Pendiente',
+  total_amount DECIMAL(10,2) DEFAULT 0.00,
+  PRIMARY KEY (id)
 );
-CREATE TABLE public.roles (
-  id integer NOT NULL DEFAULT nextval('roles_id_seq'::regclass),
-  name character varying NOT NULL,
-  CONSTRAINT roles_pkey PRIMARY KEY (id)
+
+-- 6. purchase_order_items
+CREATE TABLE purchase_order_items (
+  id INT NOT NULL AUTO_INCREMENT,
+  po_id INT,
+  product_id INT,
+  quantity DECIMAL(10,2) NOT NULL,
+  price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  received BOOLEAN DEFAULT FALSE,
+  PRIMARY KEY (id),
+  CONSTRAINT purchase_order_items_po_id_fkey FOREIGN KEY (po_id) REFERENCES purchase_orders(id),
+  CONSTRAINT purchase_order_items_product_id_fkey FOREIGN KEY (product_id) REFERENCES products(id)
 );
-CREATE TABLE public.sales (
-  id integer NOT NULL DEFAULT nextval('sales_id_seq'::regclass),
-  total_amount numeric NOT NULL,
-  created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-  payment_method character varying NOT NULL CHECK (payment_method::text = ANY (ARRAY['cash'::character varying, 'card'::character varying]::text[])),
-  amount_paid numeric NOT NULL,
-  change_amount numeric NOT NULL DEFAULT 0,
-  CONSTRAINT sales_pkey PRIMARY KEY (id)
+
+-- 7. sales
+CREATE TABLE sales (
+  id INT NOT NULL AUTO_INCREMENT,
+  total_amount DECIMAL(10,2) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  payment_method ENUM('cash', 'card') NOT NULL,
+  amount_paid DECIMAL(10,2) NOT NULL,
+  change_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  PRIMARY KEY (id)
 );
-CREATE TABLE public.sales_items (
-  id integer NOT NULL DEFAULT nextval('sales_items_id_seq'::regclass),
-  sale_id integer,
-  product_id integer,
-  quantity numeric NOT NULL,
-  price numeric NOT NULL,
-  CONSTRAINT sales_items_pkey PRIMARY KEY (id),
-  CONSTRAINT sales_items_sale_id_fkey FOREIGN KEY (sale_id) REFERENCES public.sales(id),
-  CONSTRAINT sales_items_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id)
+
+-- 8. sales_items
+CREATE TABLE sales_items (
+  id INT NOT NULL AUTO_INCREMENT,
+  sale_id INT,
+  product_id INT,
+  quantity DECIMAL(10,2) NOT NULL,
+  price DECIMAL(10,2) NOT NULL,
+  PRIMARY KEY (id),
+  CONSTRAINT sales_items_sale_id_fkey FOREIGN KEY (sale_id) REFERENCES sales(id),
+  CONSTRAINT sales_items_product_id_fkey FOREIGN KEY (product_id) REFERENCES products(id)
 );
-CREATE TABLE public.stock_lots (
-  id integer NOT NULL DEFAULT nextval('stock_lots_id_seq'::regclass),
-  product_id integer NOT NULL,
-  warehouse_id integer NOT NULL,
-  lot_number character varying NOT NULL,
-  expiration_date date,
-  quantity numeric NOT NULL DEFAULT 0.00,
-  is_discounted boolean DEFAULT false,
-  CONSTRAINT stock_lots_pkey PRIMARY KEY (id),
-  CONSTRAINT stock_lots_product_fk FOREIGN KEY (product_id) REFERENCES public.products(id),
-  CONSTRAINT stock_lots_warehouse_fk FOREIGN KEY (warehouse_id) REFERENCES public.warehouses(id)
+
+-- 9. warehouses
+CREATE TABLE warehouses (
+  id INT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  PRIMARY KEY (id)
 );
-CREATE TABLE public.stock_movements (
-  id integer NOT NULL DEFAULT nextval('stock_movements_id_seq'::regclass),
-  product_id integer,
-  quantity numeric NOT NULL,
-  movement_type character varying CHECK (movement_type::text = ANY (ARRAY['IN'::character varying, 'OUT'::character varying]::text[])),
-  reference_id integer,
-  created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT stock_movements_pkey PRIMARY KEY (id),
-  CONSTRAINT stock_movements_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id)
+
+-- 10. stock_lots
+CREATE TABLE stock_lots (
+  id INT NOT NULL AUTO_INCREMENT,
+  product_id INT NOT NULL,
+  warehouse_id INT NOT NULL,
+  lot_number VARCHAR(255) NOT NULL,
+  expiration_date DATE,
+  quantity DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  is_discounted BOOLEAN DEFAULT FALSE,
+  PRIMARY KEY (id),
+  CONSTRAINT stock_lots_product_fk FOREIGN KEY (product_id) REFERENCES products(id),
+  CONSTRAINT stock_lots_warehouse_fk FOREIGN KEY (warehouse_id) REFERENCES warehouses(id)
 );
-CREATE TABLE public.users (
-  id integer NOT NULL DEFAULT nextval('users_id_seq'::regclass),
-  username character varying NOT NULL UNIQUE,
-  full_name character varying DEFAULT NULL::character varying,
-  password_hash character varying NOT NULL,
-  role_id integer NOT NULL,
-  CONSTRAINT users_pkey PRIMARY KEY (id),
-  CONSTRAINT users_role_fk FOREIGN KEY (role_id) REFERENCES public.roles(id)
-);
-CREATE TABLE public.warehouses (
-  id integer NOT NULL DEFAULT nextval('warehouses_id_seq'::regclass),
-  name character varying NOT NULL,
-  CONSTRAINT warehouses_pkey PRIMARY KEY (id)
+
+-- 11. stock_movements
+CREATE TABLE stock_movements (
+  id INT NOT NULL AUTO_INCREMENT,
+  product_id INT,
+  quantity DECIMAL(10,2) NOT NULL,
+  movement_type ENUM('IN', 'OUT'),
+  reference_id INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  CONSTRAINT stock_movements_product_id_fkey FOREIGN KEY (product_id) REFERENCES products(id)
 );
