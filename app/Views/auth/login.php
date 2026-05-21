@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - ERP Bakery</title>
+    <title>Login - BAKERP</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
@@ -20,7 +20,7 @@
     <!-- Panel izquierdo oscuro -->
     <div class="login-left d-flex flex-column align-items-center justify-content-center text-center p-4">
         <img src="assets/img_products/logoB.png" alt="Logo" style="width:350px;" class="mb-0">
-        <h1 class="text-white fw-bold fs-4 mb-1" style="margin-top:-30px;">ERP Bakery</h1>
+        <h1 class="text-white fw-bold fs-4 mb-1" style="margin-top:-30px;">BAKERP</h1>
         <div class="login-divider my-2"></div>
         <p class="login-tagline mb-0">Sistema de gestion comercial<br>y produccion para panaderia</p>
     </div>

@@ -1,5 +1,5 @@
 <?php
-$page_title = 'Panel Principal - ERP Bakery';
+$page_title = 'Panel Principal - BAKERP';
 require_once __DIR__ . '/../layouts/sidebar.php';
 ?>
 

@@ -1,6 +1,6 @@
 <?php
 require_role(['admin', 'dependiente']);
-$page_title = 'TPV - ERP Bakery';
+$page_title = 'TPV - BAKERP';
 require_once __DIR__ . '/../layouts/sidebar.php';
 ?>
 
